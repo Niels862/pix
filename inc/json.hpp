@@ -27,6 +27,7 @@ public:
     virtual void write(std::ostream &stream, std::size_t depth) const;
 
     using ptr = std::unique_ptr<JSONString>;
+
 private:
     std::string m_value;
 };
@@ -38,6 +39,7 @@ public:
     virtual void write(std::ostream &stream, std::size_t depth) const;
 
     using ptr = std::unique_ptr<JSONInteger>;
+
 private:
     int m_value;
 };
@@ -51,8 +53,9 @@ public:
     virtual void write(std::ostream &stream, std::size_t depth) const;
 
     using ptr = std::unique_ptr<JSONObject>;
+
 private:
-    std::unordered_map<std::string, JSON::ptr> m_keys;
+    std::vector<std::pair<std::string, JSON::ptr>> m_keys;
 };
 
 class JSONList : public JSON {
@@ -64,6 +67,7 @@ public:
     virtual void write(std::ostream &stream, std::size_t depth) const;
 
     using ptr = std::unique_ptr<JSONList>;
+
 private:
     std::vector<JSON::ptr> m_list;
 };

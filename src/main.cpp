@@ -19,6 +19,8 @@ int main() {
 
         Node::ptr node = parser.parse();
 
+        node->check_type();
+
         std::cout << *node->to_json() << std::endl;
     } catch (std::exception const &e) {
         std::cerr << e.what() << std::endl;

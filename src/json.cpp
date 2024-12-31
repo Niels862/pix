@@ -14,7 +14,7 @@ JSONString::JSONString(std::string const &value)
         : m_value{value} {}
 
 void JSONString::write(std::ostream &stream, std::size_t) const {
-    stream << m_value;
+    stream << "\"" << m_value << "\"";
 }
 
 JSONInteger::JSONInteger(int value)
@@ -28,11 +28,14 @@ JSONObject::JSONObject()
         : m_keys{} {}
 
 JSONObject &JSONObject::add_key(std::string const &key, JSON::ptr value) {
-    if (m_keys.find(key) != m_keys.end()) {
-        throw FatalError("add_key(): duplicate key: " + key);
+    for (auto const &kv : m_keys) {
+        if (kv.first == key) {
+            throw FatalError("add_key(): duplicate key: " + key);
+        }
     }
 
-    m_keys[key] = std::move(value);
+    m_keys.emplace_back(key, std::move(value));
+
     return *this;
 }
 

@@ -33,6 +33,15 @@ Token::Token(TextPosition const &pos, TokenKind kind,
              std::string const &&lexeme)
         : m_pos{pos}, m_kind{kind}, m_lexeme{std::move(lexeme)} {}
 
+Token const &Token::None() {
+    static Token const none = Token();
+    return none;
+}
+
+Token::operator bool() const {
+    return m_kind != TokenKind::None;
+}
+
 std::ostream &operator <<(std::ostream &stream, Token const &token) {
     if (token.m_lexeme.empty()) {
         stream << token.m_pos << ": " << token.m_kind;

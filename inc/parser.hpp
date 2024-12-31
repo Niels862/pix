@@ -1,0 +1,51 @@
+#ifndef PIX_PARSER_HPP
+#define PIX_PARSER_HPP
+
+#include "token.hpp"
+#include "ast.hpp"
+#include <vector>
+#include <stdexcept>
+
+class ParserError : public std::exception {
+public:
+    ParserError(TextPosition const &pos, std::string const &msg);
+
+    char const *what() const noexcept override {
+        return m_msg.c_str();
+    }
+private:
+    std::string m_msg;
+};
+
+class Parser {
+public:
+    Parser(std::vector<Token> tokens);
+
+    Node::ptr parse();
+private:
+    void advance();
+
+    Token const &matches(TokenKind kind) const;
+
+    Token const &accept(TokenKind kind);
+
+    Token const &expect(TokenKind kind);
+
+    Token const &curr() const;
+
+    Token const &peek(std::size_t offset = 1) const;
+
+    Statement::ptr parse_statement();
+
+    Expression::ptr parse_expression();
+
+    Expression::ptr parse_value();
+
+    Expression::ptr parse_atom();
+
+    std::vector<Token> m_tokens;
+
+    std::size_t m_curr_idx;
+};
+
+#endif

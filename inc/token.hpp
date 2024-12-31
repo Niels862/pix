@@ -25,13 +25,17 @@ public:
           TokenKind kind = TokenKind::None, 
           std::string const &&lexeme = "");
 
+    static Token const &None();
+
     friend std::ostream &operator <<(std::ostream &stream, Token const &token);
+
+    operator bool() const;
 
     TextPosition const &pos() const { return m_pos; }
 
-    TokenKind kind() { return m_kind; }
+    TokenKind kind() const { return m_kind; }
 
-    std::string const &lexeme() { return m_lexeme; }
+    std::string const &lexeme() const { return m_lexeme; }
 private:
     TextPosition m_pos;
 

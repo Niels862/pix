@@ -8,6 +8,10 @@
 enum class TokenKind {
     None,
     Identifier,
+    Integer,
+    ParenLeft,
+    ParenRight,
+    Semicolon,
     EndOfFile
 };
 

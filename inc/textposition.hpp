@@ -11,6 +11,8 @@ public:
 
     void advance(char c);
 
+    void copy_from(TextPosition const &other);
+
     friend std::ostream &operator <<(std::ostream &stream, 
                                      TextPosition const &pos);
 

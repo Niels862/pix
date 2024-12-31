@@ -1,10 +1,16 @@
 #include "token.hpp"
+#include "error.hpp"
 #include <unordered_map>
-#include <stdexcept>
 #include <sstream>
 
 std::string const &to_string(TokenKind kind) {
     static std::unordered_map<TokenKind, std::string> const map = {
+        { TokenKind::None, "<none>" },
+        { TokenKind::Identifier, "identifier" },
+        { TokenKind::Integer, "integer" },
+        { TokenKind::ParenLeft, "(" },
+        { TokenKind::ParenRight, ")" },
+        { TokenKind::Semicolon, ";" },
         { TokenKind::EndOfFile, "end of file" }
     };
 
@@ -12,7 +18,7 @@ std::string const &to_string(TokenKind kind) {
     if (it == map.end()) {
         std::stringstream ss;
         ss << "Unmapped tokenkind: " << static_cast<int>(kind);
-        throw std::runtime_error(ss.str());
+        throw FatalError(ss.str());
     }
 
     return it->second;
@@ -28,6 +34,10 @@ Token::Token(TextPosition const &pos, TokenKind kind,
         : m_pos{pos}, m_kind{kind}, m_lexeme{std::move(lexeme)} {}
 
 std::ostream &operator <<(std::ostream &stream, Token const &token) {
-    stream << token.m_pos << ": " << token.m_kind;
+    if (token.m_lexeme.empty()) {
+        stream << token.m_pos << ": " << token.m_kind;
+    } else {
+        stream << token.m_pos << ": " << token.m_kind << ": " << token.m_lexeme;
+    }
     return stream;
 }

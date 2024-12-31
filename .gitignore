@@ -1,0 +1,4 @@
+.vscode/
+pix
+*.o
+*.d

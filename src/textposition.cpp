@@ -1,0 +1,19 @@
+#include "textposition.hpp"
+
+TextPosition::TextPosition(std::string const &fname, 
+                           std::size_t line, std::size_t col)
+        : m_fname{fname}, m_line{line}, m_col{col} {}
+
+void TextPosition::advance(char c) {
+    if (c == '\n') {
+        m_line++;
+        m_col = 0;
+    } else {
+        m_col++;
+    }
+}
+
+std::ostream &operator <<(std::ostream &stream, TextPosition const &pos) {
+    stream << pos.m_fname << ":" << pos.m_line << ":" << pos.m_col;
+    return stream;
+}

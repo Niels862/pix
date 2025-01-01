@@ -11,7 +11,7 @@ class JSON {
 public:
     JSON();
 
-    virtual ~JSON() {}
+    virtual ~JSON() = default;
 
     virtual void write(std::ostream &stream, std::size_t depth) const = 0;
 

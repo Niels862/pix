@@ -8,7 +8,7 @@ class Symbol {
 public:
     Symbol();
 
-    virtual ~Symbol() {}
+    virtual ~Symbol() = default;
 
     using ptr = std::unique_ptr<Symbol>;
 };

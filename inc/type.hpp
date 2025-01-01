@@ -10,6 +10,8 @@ class Type {
 public:
     Type();
 
+    virtual ~Type() = default;
+
     using ptr = std::unique_ptr<Type>;    
 
     using unowned_ptr = Type *;

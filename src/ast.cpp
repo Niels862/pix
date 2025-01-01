@@ -15,7 +15,7 @@ std::string const &to_string(NodeKind kind) {
     auto const &it = map.find(kind);
     if (it == map.end()) {
         std::stringstream ss;
-        ss << "Unmapped tokenkind: " << static_cast<int>(kind);
+        ss << "Unmapped nodekind: " << static_cast<int>(kind);
         throw FatalError(ss.str());
     }
 
@@ -28,10 +28,10 @@ std::ostream &operator <<(std::ostream &stream, NodeKind kind) {
 }
 
 Node::Node() 
-        {}
+        : m_type{} {}
 
 Statement::Statement() 
-        {}
+        : Node{} {}
 
 JSON::ptr Statement::to_json() const {
     JSONObject::ptr object = std::make_unique<JSONObject>();
@@ -40,8 +40,8 @@ JSON::ptr Statement::to_json() const {
     return object;
 }
 
-Expression::Expression()
-        : m_type{nullptr} {}
+Expression::Expression() 
+        : Node{} {}
 
 JSON::ptr Expression::to_json() const {
     JSONObject::ptr object = std::make_unique<JSONObject>();
@@ -56,7 +56,7 @@ JSON::ptr Expression::to_json() const {
 }
 
 ExpressionStatement::ExpressionStatement(std::unique_ptr<Expression> expr)
-        : m_expr{std::move(expr)} {}
+        : Statement{}, m_expr{std::move(expr)} {}
 
 Type::unowned_ptr ExpressionStatement::check_type() {
     m_expr->check_type();
@@ -68,7 +68,7 @@ void ExpressionStatement::add_json_attributes(JSONObject &object) const {
 }
 
 Call::Call(Expression::ptr func, std::vector<Expression::ptr> args)
-        : m_func{std::move(func)}, m_args{std::move(args)} {}
+        : Expression{}, m_func{std::move(func)}, m_args{std::move(args)} {}
 
 Type::unowned_ptr Call::check_type() {
     m_func->check_type();
@@ -92,7 +92,7 @@ void Call::add_json_attributes(JSONObject &object) const {
 }
 
 Variable::Variable(Token const &ident)
-        : m_ident{ident} {}
+        : Expression{}, m_ident{ident} {}
 
 Type::unowned_ptr Variable::check_type() {
     return Type::VoidType();
@@ -104,12 +104,13 @@ void Variable::add_json_attributes(JSONObject &object) const {
 }
  
 Integer::Integer(Token const &literal)
-        : m_literal{literal} {}
+        : Expression{}, m_literal{literal} {}
 
 Type::unowned_ptr Integer::check_type() {
     return (m_type = Type::IntType());
 }
 
 void Integer::add_json_attributes(JSONObject &object) const {
-    object.add_key("value", std::make_unique<JSONInteger>(m_literal));
+    int value = std::stoi(m_literal.lexeme());
+    object.add_key("value", std::make_unique<JSONInteger>(value));
 }

@@ -2,7 +2,7 @@
 #define PIX_LEXER_HPP
 
 #include "token.hpp"
-#include "textposition.hpp"
+#include "text-position.hpp"
 #include <string>
 #include <vector>
 #include <stdexcept>

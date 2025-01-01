@@ -1,4 +1,4 @@
-#include "symboltable.hpp"
+#include "symbol-table.hpp"
 
 SymbolTable::SymbolTable()
         : map{} {}

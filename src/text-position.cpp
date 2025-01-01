@@ -1,4 +1,4 @@
-#include "textposition.hpp"
+#include "text-position.hpp"
 #include "error.hpp"
 
 TextPosition::TextPosition(std::string const &fname, 

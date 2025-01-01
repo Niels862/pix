@@ -58,27 +58,12 @@ JSON::ptr Expression::to_json() const {
 ExpressionStatement::ExpressionStatement(std::unique_ptr<Expression> expr)
         : Statement{}, m_expr{std::move(expr)} {}
 
-Type::unowned_ptr ExpressionStatement::check_type() {
-    m_expr->check_type();
-    return Type::VoidType();
-}
-
 void ExpressionStatement::add_json_attributes(JSONObject &object) const {
     object.add_key("expr", m_expr->to_json());
 }
 
 Call::Call(Expression::ptr func, std::vector<Expression::ptr> args)
         : Expression{}, m_func{std::move(func)}, m_args{std::move(args)} {}
-
-Type::unowned_ptr Call::check_type() {
-    m_func->check_type();
-
-    for (Expression::ptr const &expr : m_args) {
-        expr->check_type();
-    }
-
-    return Type::VoidType(); /* todo */
-}
 
 void Call::add_json_attributes(JSONObject &object) const {
     object.add_key("function", m_func->to_json());
@@ -94,10 +79,6 @@ void Call::add_json_attributes(JSONObject &object) const {
 Variable::Variable(Token const &ident)
         : Expression{}, m_ident{ident} {}
 
-Type::unowned_ptr Variable::check_type() {
-    return Type::VoidType();
-}
-
 void Variable::add_json_attributes(JSONObject &object) const {
     object.add_key("identifier", 
                     std::make_unique<JSONString>(m_ident.lexeme()));
@@ -105,10 +86,6 @@ void Variable::add_json_attributes(JSONObject &object) const {
  
 Integer::Integer(Token const &literal)
         : Expression{}, m_literal{literal} {}
-
-Type::unowned_ptr Integer::check_type() {
-    return (m_type = Type::IntType());
-}
 
 void Integer::add_json_attributes(JSONObject &object) const {
     int value = std::stoi(m_literal.lexeme());

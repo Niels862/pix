@@ -1,7 +1,7 @@
 #ifndef PIX_TOKEN_HPP
 #define PIX_TOKEN_HPP
 
-#include "textposition.hpp"
+#include "text-position.hpp"
 #include <string>
 #include <iostream>
 

@@ -29,8 +29,6 @@ public:
 
     virtual Node &accept(AstVisitor &visitor) = 0;
 
-    virtual Type::unowned_ptr check_type() = 0;
-
     virtual JSON::ptr to_json() const = 0;
 
     virtual NodeKind kind() const = 0;
@@ -75,8 +73,6 @@ public:
 
     Node &accept(AstVisitor &visitor) { return visitor.visit(*this); } 
 
-    virtual Type::unowned_ptr check_type();
-
     virtual NodeKind kind() const { return NodeKind::ExpressionStatement; }
 
     Expression &expr() { return *m_expr; }
@@ -92,8 +88,6 @@ public:
     Call(Expression::ptr func, std::vector<Expression::ptr> args);
 
     Node &accept(AstVisitor &visitor) { return visitor.visit(*this); } 
-
-    virtual Type::unowned_ptr check_type();
 
     virtual NodeKind kind() const { return NodeKind::Call; }
 
@@ -114,8 +108,6 @@ public:
 
     Node &accept(AstVisitor &visitor) { return visitor.visit(*this); } 
 
-    virtual Type::unowned_ptr check_type();
-
     virtual NodeKind kind() const { return NodeKind::Variable; }
 
 private:
@@ -129,8 +121,6 @@ public:
     Integer(Token const &literal);
 
     Node &accept(AstVisitor &visitor) { return visitor.visit(*this); } 
-
-    virtual Type::unowned_ptr check_type();
 
     virtual NodeKind kind() const { return NodeKind::Integer; }
 

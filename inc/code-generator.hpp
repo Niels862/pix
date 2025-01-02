@@ -4,11 +4,16 @@
 #include "visitor.hpp"
 #include "instruction.hpp"
 #include <vector>
+#include <iostream>
 #include <variant>
 
 class CodeGenerator : public AstVisitor {
 public:
-    CodeGenerator() = default;
+    CodeGenerator();
+
+    using entry_type = std::variant<Instruction, Label>;
+
+    std::vector<entry_type> generate(Node &node);
 
     Node &default_action(Node &node) override;
 
@@ -20,18 +25,18 @@ public:
 
     Node &visit(Integer &expr) override;
 
-    void dump() const;
-
 private:
     void emit(OpCode opcode);
 
-    void emit(OpCode opcode, Label label);
-
-    void emit(OpCode opcode, uint32_t data);
+    template <typename T>
+    void emit(OpCode opcode, T arg);
 
     void emit(Label label);
 
-    std::vector<std::variant<Instruction, Label>> m_data;
+    std::vector<entry_type> m_data;
 };
+
+std::ostream &operator <<(std::ostream &stream, 
+                          std::vector<CodeGenerator::entry_type> const &data);
 
 #endif

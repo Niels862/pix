@@ -7,12 +7,11 @@ Node &TypeChecker::visit(ExpressionStatement &stmt) {
 }
 
 Node &TypeChecker::visit(Call &expr) {
-    expr.func()->accept(*this);
-
     for (Expression::ptr &expr : expr.args()) {
         expr->accept(*this);
     }
 
+    expr.set_type(Type::VoidType());
     return expr;
 }
 

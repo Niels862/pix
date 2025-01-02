@@ -76,6 +76,7 @@ public:
     virtual NodeKind kind() const { return NodeKind::ExpressionStatement; }
 
     Expression &expr() { return *m_expr; }
+    
 protected:
     Expression::ptr m_expr;
 
@@ -85,19 +86,20 @@ private:
 
 class Call : public Expression {
 public:
-    Call(Expression::ptr func, std::vector<Expression::ptr> args);
+    Call(Token const &func, std::vector<Expression::ptr> args);
 
     Node &accept(AstVisitor &visitor) { return visitor.visit(*this); } 
 
     virtual NodeKind kind() const { return NodeKind::Call; }
 
-    Expression::ptr &func() { return m_func; }
+    Token const &func() { return m_func; }
 
     std::vector<Expression::ptr> &args() { return m_args; } 
+
 private:
     void add_json_attributes(JSONObject &object) const;
 
-    Expression::ptr m_func;
+    Token m_func;
 
     std::vector<Expression::ptr> m_args;
 };
@@ -109,6 +111,8 @@ public:
     Node &accept(AstVisitor &visitor) { return visitor.visit(*this); } 
 
     virtual NodeKind kind() const { return NodeKind::Variable; }
+
+    Token const &ident() const { return m_ident; }
 
 private:
     void add_json_attributes(JSONObject &object) const;
@@ -123,6 +127,8 @@ public:
     Node &accept(AstVisitor &visitor) { return visitor.visit(*this); } 
 
     virtual NodeKind kind() const { return NodeKind::Integer; }
+
+    Token const &literal() const { return m_literal; }
 
 private:
     void add_json_attributes(JSONObject &object) const;

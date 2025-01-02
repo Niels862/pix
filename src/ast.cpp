@@ -62,11 +62,11 @@ void ExpressionStatement::add_json_attributes(JSONObject &object) const {
     object.add_key("expr", m_expr->to_json());
 }
 
-Call::Call(Expression::ptr func, std::vector<Expression::ptr> args)
-        : Expression{}, m_func{std::move(func)}, m_args{std::move(args)} {}
+Call::Call(Token const &func, std::vector<Expression::ptr> args)
+        : Expression{}, m_func{func}, m_args{std::move(args)} {}
 
 void Call::add_json_attributes(JSONObject &object) const {
-    object.add_key("function", m_func->to_json());
+    object.add_key("function", std::make_unique<JSONString>(m_func.lexeme()));
 
     JSONList::ptr list = std::make_unique<JSONList>();
     for (Expression::ptr const &expr : m_args) {

@@ -2,7 +2,8 @@ TARGET = pix
 CC = g++
 INC_DIR = inc
 SRC_DIR = src
-CFLAGS = -Wall -Wextra -Wpedantic -Werror -Wfatal-errors -std=c++17 -O0 -g `sdl2-config --cflags --libs` -lSDL2
+CFLAGS = -Wall -Wextra -Wpedantic -Werror -Wfatal-errors -std=c++17 -O0 -g
+LDFLAGS = `sdl2-config --libs` -lSDL2
 
 INCFLAGS = $(addprefix -I, $(INC_DIR))
 SOURCES = $(sort $(shell find $(SRC_DIR) -name '*.cpp'))
@@ -14,7 +15,7 @@ DEPS = $(OBJECTS:.o=.d)
 all: $(TARGET)
 
 $(TARGET): $(OBJECTS)
-	$(CC) $(CFLAGS) $(INCFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) $(INCFLAGS) -o $@ $^ $(LDFLAGS)
 
 %.o: %.cpp
 	$(CC) $(CFLAGS) $(INCFLAGS) -MMD -o $@ -c $<

@@ -79,16 +79,6 @@ Expression::ptr Parser::parse_expression() {
 Expression::ptr Parser::parse_value() {
     Expression::ptr expr = parse_atom();
 
-    if (accept(TokenKind::ParenLeft)) {
-        std::vector<Expression::ptr> args;
-        Expression::ptr arg = parse_expression();
-        args.push_back(std::move(arg));
-
-        expect(TokenKind::ParenRight);
-
-        return std::make_unique<Call>(std::move(expr), std::move(args));
-    }
-
     return expr;
 }
 
@@ -100,6 +90,15 @@ Expression::ptr Parser::parse_atom() {
     }
 
     if (accept(TokenKind::Identifier)) {
+        if (accept(TokenKind::ParenLeft)) {
+            std::vector<Expression::ptr> args;
+            Expression::ptr arg = parse_expression();
+            args.push_back(std::move(arg));
+            expect(TokenKind::ParenRight);
+
+            return std::make_unique<Call>(token, std::move(args));
+        }
+
         return std::make_unique<Variable>(token);
     }
 

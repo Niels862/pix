@@ -4,6 +4,22 @@
 #include <sstream>
 #include <iomanip>
 
+CodeGenerator::CodeGenerator()
+        : m_data{} {}
+
+std::vector<CodeGenerator::entry_type> CodeGenerator::generate(Node &node) {
+    m_data.clear();
+
+    emit(Label());
+
+    node.accept(*this);
+
+    emit(OpCode::PushImm, 0);
+    emit(OpCode::ECall, ECallFunction::Exit);
+    
+    return m_data;
+}
+
 Node &CodeGenerator::default_action(Node &node) {
     std::stringstream ss;
     ss << "CodeGenerator(): unimplemented action: " << node.kind();
@@ -11,10 +27,19 @@ Node &CodeGenerator::default_action(Node &node) {
 }
 
 Node &CodeGenerator::visit(ExpressionStatement &stmt) {
+    stmt.expr().accept(*this);
     return stmt;
 }
 
 Node &CodeGenerator::visit(Call &expr) {
+    for (Expression::ptr &expr : expr.args()) {
+        expr->accept(*this);
+    }
+
+    if (expr.func().lexeme() == "print") {
+        emit(OpCode::ECall, ECallFunction::PrintInt);
+    }
+
     return expr;
 }
 
@@ -23,32 +48,38 @@ Node &CodeGenerator::visit(Variable &expr) {
 }
 
 Node &CodeGenerator::visit(Integer &expr) {
+    emit(OpCode::PushImm, std::stoi(expr.literal().lexeme()));
     return expr;
-}
-
-void CodeGenerator::dump() const {
-    for (auto const &entry : m_data) {
-        if (std::holds_alternative<Instruction>(entry)) {
-            std::cout << std::setw(2) << "" 
-                      << std::get<Instruction>(entry) << std::endl;
-        } else {
-            std::cout << std::get<Label>(entry) << std::endl;
-        }
-    }
 }
 
 void CodeGenerator::emit(OpCode opcode) {
     m_data.emplace_back(opcode);
 }
 
-void CodeGenerator::emit(OpCode opcode, Label label) {
-    m_data.emplace_back(std::in_place_type<Instruction>, opcode, label);
-}
-
-void CodeGenerator::emit(OpCode opcode, uint32_t data) {
-    m_data.emplace_back(std::in_place_type<Instruction>, opcode, data);
+template <typename T>
+void CodeGenerator::emit(OpCode opcode, T arg)  {
+    m_data.emplace_back(std::in_place_type<Instruction>, opcode, arg);
 }
 
 void CodeGenerator::emit(Label label) {
     m_data.emplace_back(label);
+}
+
+std::ostream &operator <<(std::ostream &stream, 
+                          std::vector<CodeGenerator::entry_type> const &data) {
+    bool first = true;
+    for (auto const &entry : data) {
+        if (!first) {
+            stream << std::endl;
+        }
+        if (std::holds_alternative<Instruction>(entry)) {
+            stream << std::setw(2) << "" 
+                   << std::get<Instruction>(entry);
+        } else {
+            stream << std::get<Label>(entry) << ":";
+        }
+        first = false;
+    }
+
+    return stream;
 }

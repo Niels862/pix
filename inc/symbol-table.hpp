@@ -9,8 +9,14 @@ class SymbolTable {
 public:
     SymbolTable();
 
+    void insert(std::string const &ident, Symbol::ptr symbol);
+
+    Symbol::unowned_ptr lookup(std::string const &ident) const;
+
+    bool defines(std::string const &ident) const;
+
 private:
-    std::unordered_map<std::string, Symbol::ptr> map;
+    std::unordered_map<std::string, Symbol::ptr> m_map;
 };
 
 #endif

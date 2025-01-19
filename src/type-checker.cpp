@@ -15,6 +15,8 @@ Node &TypeChecker::visit(ExpressionStatement &stmt) {
 }
 
 Node &TypeChecker::visit(Program &program) {
+    scope = &program.scope();
+
     for (Statement::ptr &stmt : program.stmts()) {
         stmt->accept(*this);
     }
@@ -27,7 +29,24 @@ Node &TypeChecker::visit(Call &expr) {
         expr->accept(*this);
     }
 
-    expr.set_type(Type::VoidType());
+    std::string const &name = expr.func().lexeme();
+    
+    Symbol::unowned_ptr symbol = scope->lookup(name);
+    FunctionSymbol::unowned_ptr func_symbol = 
+            dynamic_cast<FunctionSymbol *>(symbol);
+
+    if (!func_symbol) {
+        throw std::runtime_error(name + " was not defined");
+    }
+
+    auto &definitions = func_symbol->definitions();
+    if (definitions.size() != 1) {
+        throw std::runtime_error("todo");
+    }
+
+    expr.set_called(definitions.front());
+    expr.set_type(definitions.front().type()->ret_type());
+    
     return expr;
 }
 

@@ -57,7 +57,7 @@ JSON::ptr Expression::to_json() const {
 }
 
 Program::Program(std::vector<Statement::ptr> stmts)
-        : Node{}, m_stmts{std::move(stmts)} {}
+        : Node{}, m_stmts{std::move(stmts)}, m_scope{} {}
 
 JSON::ptr Program::to_json() const {
     JSONObject::ptr object = std::make_unique<JSONObject>();
@@ -82,7 +82,8 @@ void ExpressionStatement::add_json_attributes(JSONObject &object) const {
 }
 
 Call::Call(Token const &func, std::vector<Expression::ptr> args)
-        : Expression{}, m_func{func}, m_args{std::move(args)} {}
+        : Expression{}, m_func{func}, m_args{std::move(args)}, 
+          m_called{nullptr} {}
 
 void Call::add_json_attributes(JSONObject &object) const {
     object.add_key("function", std::make_unique<JSONString>(m_func.lexeme()));

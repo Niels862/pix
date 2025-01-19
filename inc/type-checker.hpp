@@ -2,6 +2,7 @@
 #define PIX_TYPE_CHECKER_HPP
 
 #include "visitor.hpp"
+#include "symbol-table.hpp"
 
 class TypeChecker : public AstVisitor {
 public:
@@ -18,6 +19,9 @@ public:
     Node &visit(Variable &expr) override;
 
     Node &visit(Integer &expr) override;
+
+private:
+    SymbolTable *scope;
 };
 
 #endif

@@ -3,6 +3,7 @@
 
 #include "type.hpp"
 #include "instruction.hpp"
+#include <vector>
 #include <memory>
 
 class Symbol {
@@ -15,7 +16,7 @@ public:
     using unowned_ptr = Symbol *;
 };
 
-class TypeSymbol {
+class TypeSymbol : public Symbol {
 public:
     TypeSymbol(Type::ptr type);
 
@@ -28,22 +29,34 @@ private:
     Type::ptr m_type;
 };
 
-class FunctionSymbol {
+class FunctionDefinition;
+
+class FunctionSymbol : public Symbol {
 public:
-    FunctionSymbol(FunctionType::ptr type);
+    FunctionSymbol();
 
     using ptr = std::unique_ptr<FunctionSymbol>;
     using unowned_ptr = FunctionSymbol *;
 
-    FunctionSymbol::unowned_ptr next() const { return m_next.get(); }
+    void add_definition(FunctionType::ptr, ECallFunction ecall);
 
-    FunctionType::unowned_ptr type() const { return m_type.get(); }
+    std::vector<FunctionDefinition> &definitions() { return m_definitions; }
+
+private:
+    std::vector<FunctionDefinition> m_definitions;
+};
+
+class FunctionDefinition {
+public:
+    FunctionDefinition(FunctionType::ptr type, ECallFunction ecall);
+
+    FunctionType::unowned_ptr type() { return m_type.get(); }
 
     ECallFunction ecall() const { return m_ecall; }
 
-private:
-    FunctionSymbol::ptr m_next;
+    using unowned_ptr = FunctionDefinition *;
 
+private:
     FunctionType::ptr m_type;
 
     ECallFunction m_ecall;

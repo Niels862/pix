@@ -44,9 +44,7 @@ Node &CodeGenerator::visit(Call &expr) {
         expr->accept(*this);
     }
 
-    if (expr.func().lexeme() == "print") {
-        emit(OpCode::ECall, ECallFunction::PrintInt);
-    }
+    emit(OpCode::ECall, expr.called().ecall());
 
     return expr;
 }

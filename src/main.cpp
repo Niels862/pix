@@ -1,5 +1,6 @@
 #include "lexer.hpp"
 #include "parser.hpp"
+#include "symbol-resolver.hpp"
 #include "type-checker.hpp"
 #include "code-generator.hpp"
 #include "memory.hpp"
@@ -20,6 +21,9 @@ int main() {
         
         Parser parser(tokens);
         Node::ptr node = parser.parse();
+
+        SymbolResolver symbol_resolver;
+        node->accept(symbol_resolver);
 
         TypeChecker type_checker;
         node->accept(type_checker);

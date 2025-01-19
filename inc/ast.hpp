@@ -5,6 +5,7 @@
 #include "visitor.hpp"
 #include "token.hpp"
 #include "type.hpp"
+#include "symbol-table.hpp"
 #include "json.hpp"
 #include <vector>
 #include <memory>
@@ -80,8 +81,12 @@ public:
 
     std::vector<Statement::ptr> &stmts() { return m_stmts; }
 
+    SymbolTable &scope() { return m_scope; }
+
 private:
     std::vector<Statement::ptr> m_stmts;
+
+    SymbolTable m_scope;
 };
 
 class ExpressionStatement : public Statement {
@@ -113,12 +118,18 @@ public:
 
     std::vector<Expression::ptr> &args() { return m_args; } 
 
+    FunctionDefinition &called() { return *m_called; }
+
+    void set_called(FunctionDefinition &called) { m_called = &called; }
+
 private:
     void add_json_attributes(JSONObject &object) const;
 
     Token m_func;
 
     std::vector<Expression::ptr> m_args;
+
+    FunctionDefinition::unowned_ptr m_called;
 };
 
 class Variable : public Expression {

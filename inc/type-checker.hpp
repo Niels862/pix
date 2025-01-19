@@ -7,6 +7,10 @@ class TypeChecker : public AstVisitor {
 public:
     TypeChecker() = default;
 
+    Node &default_action(Node &node) override;
+
+    Node &visit(Program &program) override;
+
     Node &visit(ExpressionStatement &stmt) override;
 
     Node &visit(Call &expr) override;

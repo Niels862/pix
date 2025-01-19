@@ -11,11 +11,14 @@ Parser::Parser(std::vector<Token> tokens)
         : m_tokens{tokens}, m_curr_idx{} {}
 
 Node::ptr Parser::parse() {
-    Node::ptr node = parse_statement();
-
+    Statement::ptr node = parse_statement();
     expect(TokenKind::EndOfFile);
 
-    return node;
+    std::vector<Statement::ptr> stmts;
+    stmts.push_back(std::move(node));
+
+    Node::ptr program = std::make_unique<Program>(std::move(stmts));
+    return program;
 }
 
 void Parser::advance() {

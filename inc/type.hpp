@@ -30,6 +30,7 @@ public:
     JSONObject::ptr to_json() const;
 
     using ptr = std::unique_ptr<NamedType>;
+    using unowned_ptr = NamedType *;
 
 private:
     std::string m_name;
@@ -42,6 +43,8 @@ public:
     JSONObject::ptr to_json() const;
 
     using ptr = std::unique_ptr<FunctionType>;    
+    using unowned_ptr = FunctionType *;
+
 private:
     std::vector<Type::ptr> m_params;
     Type::ptr m_ret_type;

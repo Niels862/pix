@@ -6,10 +6,12 @@
 
 class Renderer {
 public:
-    Renderer(int window_width, int window_height, 
-             int mem_width, int mem_height);
+    Renderer();
 
     ~Renderer();
+
+    void init(int window_width, int window_height, 
+              int mem_width, int mem_height);
 
     int process_events();
 
@@ -27,6 +29,8 @@ private:
     int m_window_width, m_window_height;
 
     int m_mem_width, m_mem_height;
+
+    bool m_initialized;
 };
 
 #endif

@@ -10,6 +10,9 @@
 #include "instruction.hpp"
 #include <iostream>
 
+int const MemWidth = 16, MemHeight = 16;
+bool const UseRenderer = false;
+
 int main() {
     try {
         Lexer lexer("test.pix");
@@ -23,26 +26,27 @@ int main() {
 
         std::cout << *node->to_json() << std::endl;
 
-        CodeGenerator code_generator;
         std::vector<CodeGenerator::entry_type> data 
-                = code_generator.generate(*node);
+                = CodeGenerator().generate(*node);
 
         std::cout << data << std::endl;
 
-        Memory memory(32 * 32);
+        Memory memory(MemWidth * MemHeight);
         Assembler(data, memory).assemble();
         VirtualMachine vm(memory);
 
-        Renderer renderer(256, 256, 32, 32);
-        while (true) {
+        Renderer renderer;
+        if (UseRenderer) {
+            renderer.init(256, 256, MemWidth, MemHeight);
+        }
+
+        while (!vm.terminated()) {
             if (renderer.process_events()) {
                 break;
             }
             
             renderer.draw_frame(memory.raw());
             vm.execute_step();
-
-            SDL_Delay(1000);
         }
 
     } catch (std::exception const &e) {

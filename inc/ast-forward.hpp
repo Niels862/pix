@@ -3,6 +3,12 @@
 
 class Node;
 
+class Statement;
+
+class Expression;
+
+class Program;
+
 class ExpressionStatement;
 
 class Call;

@@ -26,6 +26,14 @@ Node &CodeGenerator::default_action(Node &node) {
     throw FatalError(ss.str());
 }
 
+Node &CodeGenerator::visit(Program &program) {
+    for (Statement::ptr &stmt : program.stmts()) {
+        stmt->accept(*this);
+    }
+
+    return program;
+}
+
 Node &CodeGenerator::visit(ExpressionStatement &stmt) {
     stmt.expr().accept(*this);
     return stmt;

@@ -11,6 +11,7 @@
 
 enum class NodeKind {
     None,
+    Program,
     ExpressionStatement,
     Call,
     Variable,
@@ -65,6 +66,22 @@ public:
 
 private:
     virtual void add_json_attributes(JSONObject &object) const = 0;
+};
+
+class Program : public Node {
+public:
+    Program(std::vector<Statement::ptr> stmts);
+
+    Node &accept(AstVisitor &visitor) { return visitor.visit(*this); }
+
+    virtual NodeKind kind() const { return NodeKind::Program; }
+
+    JSON::ptr to_json() const override;
+
+    std::vector<Statement::ptr> &stmts() { return m_stmts; }
+
+private:
+    std::vector<Statement::ptr> m_stmts;
 };
 
 class ExpressionStatement : public Statement {

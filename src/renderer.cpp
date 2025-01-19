@@ -1,12 +1,22 @@
 #include "renderer.hpp"
 
-Renderer::Renderer(int window_width, int window_height, 
-                   int mem_width, int mem_height)
-        : m_window{nullptr}, m_renderer{nullptr}, 
-          m_texture{nullptr}, 
-          m_pixels{std::make_unique<Uint32[]>(mem_width * mem_height)},
-          m_window_width{window_width}, m_window_height{window_height},
-          m_mem_width{mem_width}, m_mem_height{mem_height} {
+Renderer::Renderer()
+        : m_window{nullptr}, m_renderer{nullptr},
+          m_texture{nullptr},
+          m_pixels{}, 
+          m_window_width{}, m_window_height{},
+          m_mem_width{}, m_mem_height{},
+          m_initialized{false} {}
+
+void Renderer::init(int window_width, int window_height, 
+                    int mem_width, int mem_height) {
+    m_window_width = window_width;
+    m_window_height = window_height;
+    m_mem_width = mem_width;
+    m_window_height = mem_height;
+
+    m_pixels = std::make_unique<Uint32[]>(m_mem_width * m_mem_height);
+
     SDL_Init(SDL_INIT_VIDEO);
 
     m_window = SDL_CreateWindow("", 
@@ -23,17 +33,23 @@ Renderer::Renderer(int window_width, int window_height,
                                   SDL_TEXTUREACCESS_STREAMING, 
                                   m_mem_width, m_mem_height);
     SDL_SetTextureBlendMode(m_texture, SDL_BLENDMODE_BLEND);
+
+    m_initialized = true;
 }
 
 Renderer::~Renderer() {
-    SDL_DestroyTexture(m_texture);
-    SDL_DestroyRenderer(m_renderer);
-    SDL_DestroyWindow(m_window);
+    if (m_initialized) {
+        SDL_DestroyTexture(m_texture);
+        SDL_DestroyRenderer(m_renderer);
+        SDL_DestroyWindow(m_window);
 
-    SDL_Quit();
+        SDL_Quit();
+    }
 }
 
 int Renderer::process_events() {
+    if (!m_initialized) return 0;
+
     SDL_Event event;
 
     while (SDL_PollEvent(&event)) {
@@ -46,6 +62,8 @@ int Renderer::process_events() {
 }
 
 void Renderer::draw_frame(char const *data) {
+    if (!m_initialized) return;
+
     for (int i = 0; i < m_mem_width * m_mem_height; i++) {
         uint32_t r = ((data[i] >> 5) & 0x7) << 5;
         uint32_t g = ((data[i] >> 3) & 0x3) << 6;
@@ -61,4 +79,6 @@ void Renderer::draw_frame(char const *data) {
     SDL_Rect dst = {0, 0, m_window_width, m_window_height};
     SDL_RenderCopy(m_renderer, m_texture, NULL, &dst);
     SDL_RenderPresent(m_renderer);
+
+    SDL_Delay(1000);
 }

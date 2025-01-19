@@ -5,6 +5,10 @@ Node &AstVisitor::default_action(Node &node) {
     return node;
 }
 
+Node &AstVisitor::visit(Program &program) {
+    return default_action(program);
+}
+
 Node &AstVisitor::visit(ExpressionStatement &stmt) {
     return default_action(stmt);
 }

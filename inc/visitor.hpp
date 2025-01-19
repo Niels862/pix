@@ -11,6 +11,8 @@ public:
 
     virtual Node &default_action(Node &node);
 
+    virtual Node &visit(Program &program);
+
     virtual Node &visit(ExpressionStatement &stmt);
 
     virtual Node &visit(Call &expr);

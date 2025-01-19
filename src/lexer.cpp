@@ -41,9 +41,9 @@ std::vector<Token> Lexer::lex() {
                 advance();
             } while (!is_linebreak() && !at_eof());
         } else {
-            throw LexerError(m_curr_pos, 
-                             "Unrecognized character: " 
-                             + std::string(1, curr()));
+            std::stringstream ss;
+            ss << "Unrecognized character: " << std::string(1, curr());
+            throw LexerError(m_curr_pos, ss.str());
         }
     }
 

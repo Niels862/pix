@@ -17,6 +17,10 @@ public:
 private:
     void execute_ecall(ECallFunction ecall);
 
+    void jump_to(std::size_t target);
+
+    void jump_to_address(std::size_t target_addr);
+
     Memory &m_memory;
 
     std::size_t m_ip;

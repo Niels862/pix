@@ -13,6 +13,7 @@
 enum class NodeKind {
     None,
     Program,
+    FunctionDeclaration,
     ExpressionStatement,
     Call,
     Variable,
@@ -83,10 +84,34 @@ public:
 
     SymbolTable &scope() { return m_scope; }
 
+    using ptr = std::unique_ptr<Program>;
+
 private:
     std::vector<Statement::ptr> m_stmts;
 
     SymbolTable m_scope;
+};
+
+class FunctionDeclaration : public Statement {
+public:
+    FunctionDeclaration(Token const &func, std::vector<Statement::ptr> body);
+
+    Node &accept(AstVisitor &visitor) { return visitor.visit(*this); } 
+
+    virtual NodeKind kind() const { return NodeKind::FunctionDeclaration; }
+
+    Token const &func() const { return m_func; }
+
+    std::vector<Statement::ptr> &body() { return m_body; }
+
+    using unowned_ptr = FunctionDeclaration *;
+
+private:
+    void add_json_attributes(JSONObject &object) const;
+
+    Token m_func;
+
+    std::vector<Statement::ptr> m_body;
 };
 
 class ExpressionStatement : public Statement {

@@ -5,18 +5,32 @@
 #include <iomanip>
 
 CodeGenerator::CodeGenerator()
-        : m_data{} {}
+        : m_data{}, m_func_labels{}, m_jobs{}, m_fresh_id{1} {}
 
-std::vector<CodeGenerator::entry_type> CodeGenerator::generate(Node &node) {
+std::vector<CodeGenerator::entry_type> CodeGenerator::generate(Program &ast) {
     m_data.clear();
 
-    emit(Label());
+    emit(Label(0));
 
-    node.accept(*this);
+    for (Statement::ptr const &stmt : ast.stmts()) {
+        if (stmt->kind() != NodeKind::FunctionDeclaration) {
+            stmt->accept(*this);
+        }
+    }
 
     emit(OpCode::PushImm, 0);
     emit(OpCode::ECall, ECallFunction::Exit);
     
+    while (!m_jobs.empty()) {
+        FunctionDefinition &def = *m_jobs.front();
+        
+        emit(m_func_labels.find(&def)->second);
+        def.decl()->accept(*this);
+        emit(OpCode::Ret);
+
+        m_jobs.pop();
+    }
+
     return m_data;
 }
 
@@ -34,6 +48,14 @@ Node &CodeGenerator::visit(Program &program) {
     return program;
 }
 
+Node &CodeGenerator::visit(FunctionDeclaration &decl) {
+    for (Statement::ptr &stmt : decl.body()) {
+        stmt->accept(*this);
+    }
+
+    return decl;
+}
+
 Node &CodeGenerator::visit(ExpressionStatement &stmt) {
     stmt.expr().accept(*this);
     return stmt;
@@ -44,7 +66,23 @@ Node &CodeGenerator::visit(Call &expr) {
         expr->accept(*this);
     }
 
-    emit(OpCode::ECall, expr.called().ecall());
+    FunctionDefinition &def = expr.called();
+    if (def.is_ecall()) {
+        emit(OpCode::ECall, def.ecall());
+    } else {
+        auto iter = m_func_labels.find(&def);
+
+        Label label;
+        if (iter == m_func_labels.end()) {
+            label = fresh_label();
+            m_func_labels[&def] = label;
+            m_jobs.push(&def);
+        } else {
+            label = iter->second;
+        }
+
+        emit(OpCode::Call, label);
+    }
 
     return expr;
 }
@@ -56,6 +94,12 @@ Node &CodeGenerator::visit(Variable &expr) {
 Node &CodeGenerator::visit(Integer &expr) {
     emit(OpCode::PushImm, std::stoi(expr.literal().lexeme()));
     return expr;
+}
+
+Label CodeGenerator::fresh_label() {
+    Label label(m_fresh_id);
+    m_fresh_id++;
+    return label;
 }
 
 void CodeGenerator::emit(OpCode opcode) {

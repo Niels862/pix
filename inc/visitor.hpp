@@ -13,6 +13,8 @@ public:
 
     virtual Node &visit(Program &program);
 
+    virtual Node &visit(FunctionDeclaration &decl);
+
     virtual Node &visit(ExpressionStatement &stmt);
 
     virtual Node &visit(Call &expr);

@@ -12,6 +12,8 @@ public:
 
     Node &visit(Program &program) override;
 
+    Node &visit(FunctionDeclaration &decl) override;
+
     Node &visit(ExpressionStatement &stmt) override;
 
     Node &visit(Call &expr) override;

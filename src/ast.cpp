@@ -7,6 +7,7 @@ std::string const &to_string(NodeKind kind) {
     static std::unordered_map<NodeKind, std::string> const map = {
         { NodeKind::None, "<none>" },
         { NodeKind::Program, "program" },
+        { NodeKind::FunctionDeclaration, "function-declaration" },
         { NodeKind::ExpressionStatement, "expression-statement" },
         { NodeKind::Call, "call" },
         { NodeKind::Variable, "variable" },
@@ -72,6 +73,14 @@ JSON::ptr Program::to_json() const {
     object->add_key("stmts", std::move(list));
 
     return object;
+}
+
+FunctionDeclaration::FunctionDeclaration(Token const &func, 
+                                         std::vector<Statement::ptr> body)
+        : m_func{func}, m_body{std::move(body)} {}
+
+void FunctionDeclaration::add_json_attributes(JSONObject &object) const {
+    object.add_key("function", std::make_unique<JSONString>(m_func.lexeme()));
 }
 
 ExpressionStatement::ExpressionStatement(std::unique_ptr<Expression> expr)

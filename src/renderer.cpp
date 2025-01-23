@@ -13,13 +13,13 @@ void Renderer::init(int window_width, int window_height,
     m_window_width = window_width;
     m_window_height = window_height;
     m_mem_width = mem_width;
-    m_window_height = mem_height;
+    m_mem_height = mem_height;
 
     m_pixels = std::make_unique<Uint32[]>(m_mem_width * m_mem_height);
 
     SDL_Init(SDL_INIT_VIDEO);
 
-    m_window = SDL_CreateWindow("", 
+    m_window = SDL_CreateWindow("<Title>", 
                                 SDL_WINDOWPOS_CENTERED, 
                                 SDL_WINDOWPOS_CENTERED, 
                                 m_window_width,

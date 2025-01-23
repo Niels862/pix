@@ -11,6 +11,8 @@
 enum class OpCode {
     Nop,
     ECall,
+    Call,
+    Ret,
     PushImm
 };
 
@@ -32,16 +34,16 @@ class Label {
 public:
     Label();
 
+    Label(int id);
+
     friend std::ostream &operator <<(std::ostream &stream, Label const &label);
 
-    using id_type = int;
+    using map_type = std::unordered_map<int, uint32_t>;
 
-    using map_type = std::unordered_map<id_type, uint32_t>;
-
-    id_type id() const { return m_id; }
+    int id() const { return m_id; }
 
 private:
-    id_type m_id;
+    int m_id;
 };
 
 class Instruction {

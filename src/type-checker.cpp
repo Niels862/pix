@@ -1,11 +1,12 @@
 #include "type-checker.hpp"
 #include "ast.hpp"
 #include "error.hpp"
+#include "parser.hpp" // for ParserError
 #include <sstream>
 
 Node &TypeChecker::default_action(Node &node) {
     std::stringstream ss;
-    ss << "CodeGenerator(): unimplemented action: " << node.kind();
+    ss << "TypeChecker(): unimplemented action: " << node.kind();
     throw FatalError(ss.str());
 }
 
@@ -17,11 +18,21 @@ Node &TypeChecker::visit(ExpressionStatement &stmt) {
 Node &TypeChecker::visit(Program &program) {
     scope = &program.scope();
 
+    std::cout << *scope << std::endl;
+
     for (Statement::ptr &stmt : program.stmts()) {
         stmt->accept(*this);
     }
 
     return program;
+}
+
+Node &TypeChecker::visit(FunctionDeclaration &decl) {
+    for (Statement::ptr &stmt : decl.body()) {
+        stmt->accept(*this);
+    }
+
+    return decl;
 }
 
 Node &TypeChecker::visit(Call &expr) {
@@ -36,16 +47,22 @@ Node &TypeChecker::visit(Call &expr) {
             dynamic_cast<FunctionSymbol *>(symbol);
 
     if (!func_symbol) {
-        throw std::runtime_error(name + " was not defined");
+        throw ParserError(expr.func().pos(), name + " is not a function");
     }
 
     auto &definitions = func_symbol->definitions();
     if (definitions.size() != 1) {
-        throw std::runtime_error("todo");
+        throw ParserError(expr.func().pos(), "overloads not implemented");
     }
 
-    expr.set_called(definitions.front());
-    expr.set_type(definitions.front().type()->ret_type());
+    FunctionDefinition &def = definitions.front();
+
+    if (expr.args().size() != def.type()->param_types().size()) {
+        throw ParserError(expr.func().pos(), "argcount error, todo");
+    }
+
+    expr.set_called(def);
+    expr.set_type(def.type()->ret_type());
     
     return expr;
 }

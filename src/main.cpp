@@ -11,27 +11,31 @@
 #include "instruction.hpp"
 #include <iostream>
 
-int const MemWidth = 16, MemHeight = 16;
-bool const UseRenderer = false;
+int const MemWidth = 256, MemHeight = 256;
+bool const UseRenderer = true;
 
 int main() {
     try {
         Lexer lexer("test.pix");
         std::vector<Token> tokens = lexer.lex();
         
+        for (Token const &token : tokens) {
+            std::cout << token << std::endl;
+        }
+
         Parser parser(tokens);
-        Node::ptr node = parser.parse();
+        Program::ptr ast = parser.parse();
 
         SymbolResolver symbol_resolver;
-        node->accept(symbol_resolver);
+        ast->accept(symbol_resolver);
 
         TypeChecker type_checker;
-        node->accept(type_checker);
+        ast->accept(type_checker);
 
-        std::cout << *node->to_json() << std::endl;
+        std::cout << *ast->to_json() << std::endl;
 
         std::vector<CodeGenerator::entry_type> data 
-                = CodeGenerator().generate(*node);
+                = CodeGenerator().generate(*ast);
 
         std::cout << data << std::endl;
 

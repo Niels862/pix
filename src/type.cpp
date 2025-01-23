@@ -33,7 +33,7 @@ void NamedType::write(std::ostream &stream) const {
 
 FunctionType::FunctionType(std::vector<Type::unowned_ptr> params, 
                            Type::unowned_ptr ret_type)
-        : m_params{params}, m_ret_type{ret_type} {}
+        : m_param_types{params}, m_ret_type{ret_type} {}
 
 JSONObject::ptr FunctionType::to_json() const {
     JSONObject::ptr object = std::make_unique<JSONObject>();
@@ -45,7 +45,7 @@ void FunctionType::write(std::ostream &stream) const {
     stream << "(";
 
     bool first = true;
-    for (Type::unowned_ptr const &type : m_params) {
+    for (Type::unowned_ptr const &type : m_param_types) {
         if (first) {
             first = false;
         } else {

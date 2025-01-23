@@ -50,7 +50,8 @@ public:
 
     void write(std::ostream &stream) const override;
 
-    std::vector<Type::unowned_ptr> const &params() { return m_params; }
+    std::vector<Type::unowned_ptr> const &param_types() 
+            { return m_param_types; }
 
     Type::unowned_ptr ret_type() { return m_ret_type; }
 
@@ -58,7 +59,7 @@ public:
     using unowned_ptr = FunctionType *;
 
 private:
-    std::vector<Type::unowned_ptr> m_params;
+    std::vector<Type::unowned_ptr> m_param_types;
     Type::unowned_ptr m_ret_type;
 };
 

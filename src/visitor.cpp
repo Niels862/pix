@@ -9,6 +9,10 @@ Node &AstVisitor::visit(Program &program) {
     return default_action(program);
 }
 
+Node &AstVisitor::visit(FunctionDeclaration &decl) {
+    return default_action(decl);
+}
+
 Node &AstVisitor::visit(ExpressionStatement &stmt) {
     return default_action(stmt);
 }

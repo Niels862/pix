@@ -1,4 +1,5 @@
 #include "symbol-table.hpp"
+#include <iomanip>
 
 SymbolTable::SymbolTable()
         : m_map{} {}
@@ -19,4 +20,22 @@ Symbol::unowned_ptr SymbolTable::lookup(std::string const &ident) const {
 
 bool SymbolTable::defines(std::string const &ident) const {
     return m_map.find(ident) != m_map.end();
+}
+
+std::ostream &operator <<(std::ostream &stream, SymbolTable const &table) {
+    stream << "{\n";
+
+    bool first = true;
+    for (auto const &kv : table.m_map) {
+        if (first) {
+            first = false;
+        } else {
+            stream << ",\n";
+        }
+
+        stream << std::setw(2) << "" << kv.first << ": " << *kv.second;
+    }
+
+    stream << "\n}";
+    return stream;
 }

@@ -15,6 +15,11 @@ public:
 
     bool defines(std::string const &ident) const;
 
+    friend std::ostream &operator <<(std::ostream &stream, 
+                                     SymbolTable const &table);
+
+    using unowned_ptr = SymbolTable *;
+
 private:
     std::unordered_map<std::string, Symbol::ptr> m_map;
 };

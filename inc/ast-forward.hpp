@@ -9,6 +9,8 @@ class Expression;
 
 class Program;
 
+class FunctionDeclaration;
+
 class ExpressionStatement;
 
 class Call;

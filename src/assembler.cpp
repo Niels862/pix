@@ -20,7 +20,7 @@ void Assembler::definition_pass() {
         if (std::holds_alternative<Instruction>(entry)) {
             p++;
         } else {
-            Label::id_type id = std::get<Label>(entry).id();
+            int id = std::get<Label>(entry).id();
 
             if (m_labels.find(id) != m_labels.end()) {
                 std::stringstream ss;

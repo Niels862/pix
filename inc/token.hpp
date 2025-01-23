@@ -9,13 +9,20 @@ enum class TokenKind {
     None,
     Identifier,
     Integer,
+    Function,
+    Return,
     ParenLeft,
     ParenRight,
+    BraceLeft,
+    BraceRight,
+    Comma,
     Semicolon,
     EndOfFile
 };
 
 std::string const &to_string(TokenKind kind);
+
+TokenKind from_string(std::string const &str);
 
 std::ostream &operator <<(std::ostream &stream, TokenKind kind);
 

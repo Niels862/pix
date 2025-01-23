@@ -10,14 +10,15 @@ ParserError::ParserError(TextPosition const &pos, std::string const &msg) {
 Parser::Parser(std::vector<Token> tokens)
         : m_tokens{tokens}, m_curr_idx{} {}
 
-Node::ptr Parser::parse() {
-    Statement::ptr node = parse_statement();
-    expect(TokenKind::EndOfFile);
-
+Program::ptr Parser::parse() {
     std::vector<Statement::ptr> stmts;
-    stmts.push_back(std::move(node));
 
-    Node::ptr program = std::make_unique<Program>(std::move(stmts));
+    while (!accept(TokenKind::EndOfFile)) {
+        Statement::ptr stmt = parse_statement();
+        stmts.push_back(std::move(stmt));
+    }
+
+    Program::ptr program = std::make_unique<Program>(std::move(stmts));
     return program;
 }
 
@@ -68,10 +69,49 @@ Token const &Parser::peek(std::size_t offset) const {
 }
 
 Statement::ptr Parser::parse_statement() {
-    Expression::ptr expr = parse_expression();
+    if (matches(TokenKind::Function)) {
+        return parse_function_declaration();
+    }
+
+    return parse_expression_statement();
+}
+
+Statement::ptr Parser::parse_function_declaration() {
+    expect(TokenKind::Function);
+
+    Token func = expect(TokenKind::Identifier);
+
+    // temp
+    expect(TokenKind::ParenLeft);
+    expect(TokenKind::ParenRight);
+
+    std::vector<Statement::ptr> stmts = parse_body();
+
+    return std::make_unique<FunctionDeclaration>(func, std::move(stmts));
+}
+
+std::vector<Statement::ptr> Parser::parse_body() {
+    expect(TokenKind::BraceLeft);
+
+    std::vector<Statement::ptr> stmts;
+
+    while (!accept(TokenKind::BraceRight)) {
+        stmts.push_back(parse_statement());
+
+        if (matches(TokenKind::EndOfFile)) {
+            expect(TokenKind::BraceRight);
+        }
+    }
+
+    return stmts;
+}
+
+Statement::ptr Parser::parse_expression_statement() {
     Statement::ptr stmt = 
-            std::make_unique<ExpressionStatement>(std::move(expr));
+            std::make_unique<ExpressionStatement>(parse_expression());
+
     expect(TokenKind::Semicolon);
+
     return stmt;
 }
 
@@ -93,13 +133,8 @@ Expression::ptr Parser::parse_atom() {
     }
 
     if (accept(TokenKind::Identifier)) {
-        if (accept(TokenKind::ParenLeft)) {
-            std::vector<Expression::ptr> args;
-            Expression::ptr arg = parse_expression();
-            args.push_back(std::move(arg));
-            expect(TokenKind::ParenRight);
-
-            return std::make_unique<Call>(token, std::move(args));
+        if (matches(TokenKind::ParenLeft)) {
+            return std::make_unique<Call>(token, parse_call_args());
         }
 
         return std::make_unique<Variable>(token);
@@ -108,4 +143,24 @@ Expression::ptr Parser::parse_atom() {
     std::stringstream ss;
     ss << "Expected value, but got " << token.kind();
     throw ParserError(token.pos(), ss.str());
+}
+
+std::vector<Expression::ptr> Parser::parse_call_args() {
+    expect(TokenKind::ParenLeft);
+
+    if (accept(TokenKind::ParenRight)) {
+        return {};
+    }
+
+    std::vector<Expression::ptr> args;
+
+    while (true) {
+        Expression::ptr arg = parse_expression();
+        args.push_back(std::move(arg));
+
+        if (!accept(TokenKind::Comma)) {
+            expect(TokenKind::ParenRight);
+            return args;
+        }
+    }
 }

@@ -7,6 +7,8 @@ std::string const &to_string(OpCode instr) {
     static std::unordered_map<OpCode, std::string> const map = {
         { OpCode::Nop, "nop" },
         { OpCode::ECall, "ecall" },
+        { OpCode::Call, "call" },
+        { OpCode::Ret, "ret" },
         { OpCode::PushImm, "pushimm" }
     };
 
@@ -47,12 +49,11 @@ std::ostream &operator <<(std::ostream &stream, ECallFunction ecall) {
     return stream;
 }
 
-Label::Label() {
-    static int id = 0;
+Label::Label()
+        : m_id{} {}
 
-    id++;
-    m_id = id;
-}
+Label::Label(int id)
+        : m_id{id} {}
 
 std::ostream &operator <<(std::ostream &stream, Label const &label) {
     stream << ".L" << label.m_id;

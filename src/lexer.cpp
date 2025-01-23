@@ -96,19 +96,7 @@ bool Lexer::is_linebreak() const {
 }
 
 TokenKind Lexer::separator_kind() const {
-    switch (curr()) {
-        case '(':
-            return TokenKind::ParenLeft;
-
-        case ')':
-            return TokenKind::ParenRight;
-
-        case ';':
-            return TokenKind::Semicolon;
-
-        default:
-            return TokenKind::None;
-    }
+    return from_string(std::string(1, curr()));
 }
 
 void Lexer::lex_identifier() {
@@ -116,7 +104,12 @@ void Lexer::lex_identifier() {
         advance();
     } while (is_id_continue());
 
-    m_tokens.emplace_back(m_base_pos, TokenKind::Identifier, lexeme());
+    TokenKind keyword = from_string(lexeme());
+    if (keyword == TokenKind::None) {
+        m_tokens.emplace_back(m_base_pos, TokenKind::Identifier, lexeme());
+    } else {
+        m_tokens.emplace_back(m_base_pos, keyword);
+    }
 }
 
 void Lexer::lex_integer() {

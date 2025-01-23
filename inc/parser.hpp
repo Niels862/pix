@@ -21,7 +21,7 @@ class Parser {
 public:
     Parser(std::vector<Token> tokens);
 
-    Node::ptr parse();
+    Program::ptr parse();
 private:
     void advance();
 
@@ -37,11 +37,19 @@ private:
 
     Statement::ptr parse_statement();
 
+    Statement::ptr parse_function_declaration();
+
+    std::vector<Statement::ptr> parse_body();
+
+    Statement::ptr parse_expression_statement();
+
     Expression::ptr parse_expression();
 
     Expression::ptr parse_value();
 
     Expression::ptr parse_atom();
+
+    std::vector<Expression::ptr> parse_call_args();
 
     std::vector<Token> m_tokens;
 

@@ -13,6 +13,10 @@ std::ostream &operator <<(std::ostream &stream, JSON const &json) {
 JSONString::JSONString(std::string const &value)
         : m_value{value} {}
 
+JSONString::ptr JSONString::Create(std::string const &value) {
+    return std::make_unique<JSONString>(value);
+}
+
 void JSONString::write(std::ostream &stream, std::size_t) const {
     stream << "\"" << m_value << "\"";
 }
@@ -20,12 +24,20 @@ void JSONString::write(std::ostream &stream, std::size_t) const {
 JSONInteger::JSONInteger(int value)
         : m_value{value} {}
 
+JSONInteger::ptr JSONInteger::Create(int value) {
+    return std::make_unique<JSONInteger>(value);
+}
+
 void JSONInteger::write(std::ostream &stream, std::size_t) const {
     stream << m_value;
 }
 
 JSONObject::JSONObject() 
         : m_keys{} {}
+
+JSONObject::ptr JSONObject::Create() {
+    return std::make_unique<JSONObject>();
+}
 
 JSONObject &JSONObject::add_key(std::string const &key, JSON::ptr value) {
     for (auto const &kv : m_keys) {
@@ -40,6 +52,11 @@ JSONObject &JSONObject::add_key(std::string const &key, JSON::ptr value) {
 }
 
 void JSONObject::write(std::ostream &stream, std::size_t depth) const {
+    if (m_keys.empty()) {
+        stream << "{ }";
+        return;
+    }
+    
     stream << "{";
 
     bool first = true;
@@ -61,11 +78,20 @@ void JSONObject::write(std::ostream &stream, std::size_t depth) const {
 JSONList::JSONList()
         : m_list{} {}
 
+JSONList::ptr JSONList::Create() {
+    return std::make_unique<JSONList>();
+}
+
 void JSONList::add(JSON::ptr value) {
     m_list.push_back(std::move(value));
 }
 
 void JSONList::write(std::ostream &stream, std::size_t depth) const {
+    if (m_list.empty()) {
+        stream << "[ ]";
+        return;
+    }
+    
     stream << "[";
 
     bool first = true;

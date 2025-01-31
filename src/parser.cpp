@@ -76,18 +76,46 @@ Statement::ptr Parser::parse_statement() {
     return parse_expression_statement();
 }
 
-Statement::ptr Parser::parse_function_declaration() {
+FunctionDeclaration::ptr Parser::parse_function_declaration() {
     expect(TokenKind::Function);
 
     Token func = expect(TokenKind::Identifier);
 
-    // temp
-    expect(TokenKind::ParenLeft);
-    expect(TokenKind::ParenRight);
+    std::vector<VariableDeclaration::ptr> params = parse_function_parameters();
 
     std::vector<Statement::ptr> stmts = parse_body();
 
-    return std::make_unique<FunctionDeclaration>(func, std::move(stmts));
+    return std::make_unique<FunctionDeclaration>(func, std::move(params), 
+                                                 std::move(stmts));
+}
+
+std::vector<VariableDeclaration::ptr> Parser::parse_function_parameters() {
+    expect(TokenKind::ParenLeft);
+
+    if (accept(TokenKind::ParenRight)) {
+        return {};
+    }
+
+    std::vector<VariableDeclaration::ptr> params;
+
+    while (true) {
+        VariableDeclaration::ptr param = parse_variable_declaration();
+        params.push_back(std::move(param));
+
+        if (!accept(TokenKind::Comma)) {
+            expect(TokenKind::ParenRight);
+            return params;
+        }
+    }
+}
+
+VariableDeclaration::ptr Parser::parse_variable_declaration() {
+    Token ident = expect(TokenKind::Identifier);
+
+    expect(TokenKind::Colon); // temp
+    Token type = expect(TokenKind::Identifier);
+    
+    return std::make_unique<VariableDeclaration>(ident);
 }
 
 std::vector<Statement::ptr> Parser::parse_body() {

@@ -13,6 +13,7 @@
 enum class NodeKind {
     None,
     Program,
+    VariableDeclaration,
     FunctionDeclaration,
     ExpressionStatement,
     Call,
@@ -82,19 +83,39 @@ public:
 
     std::vector<Statement::ptr> &stmts() { return m_stmts; }
 
-    SymbolTable &scope() { return m_scope; }
+    SymbolTable &symbols() { return m_symbols; }
 
     using ptr = std::unique_ptr<Program>;
 
 private:
     std::vector<Statement::ptr> m_stmts;
 
-    SymbolTable m_scope;
+    SymbolTable m_symbols;
+};
+
+class VariableDeclaration : public Statement {
+public:
+    VariableDeclaration(Token const &ident);
+
+    Node &accept(AstVisitor &visitor) { return visitor.visit(*this); } 
+
+    virtual NodeKind kind() const { return NodeKind::VariableDeclaration; }
+
+    Token const &ident() const { return m_ident; }
+
+    using ptr = std::unique_ptr<VariableDeclaration>;
+
+private:
+    void add_json_attributes(JSONObject &object) const;
+
+    Token m_ident;
 };
 
 class FunctionDeclaration : public Statement {
 public:
-    FunctionDeclaration(Token const &func, std::vector<Statement::ptr> body);
+    FunctionDeclaration(Token const &func, 
+                        std::vector<VariableDeclaration::ptr> params, 
+                        std::vector<Statement::ptr> body);
 
     Node &accept(AstVisitor &visitor) { return visitor.visit(*this); } 
 
@@ -106,12 +127,18 @@ public:
 
     using unowned_ptr = FunctionDeclaration *;
 
+    using ptr = std::unique_ptr<FunctionDeclaration>;
+
 private:
     void add_json_attributes(JSONObject &object) const;
 
     Token m_func;
 
+    std::vector<VariableDeclaration::ptr> m_params;
+
     std::vector<Statement::ptr> m_body;
+
+    SymbolTable m_symbols;
 };
 
 class ExpressionStatement : public Statement {

@@ -23,7 +23,7 @@ public:
     Node &visit(Integer &expr) override;
 
 private:
-    SymbolTable *scope;
+    SymbolScope m_scope;
 };
 
 #endif

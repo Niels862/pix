@@ -11,8 +11,8 @@
 #include "instruction.hpp"
 #include <iostream>
 
-int const MemWidth = 256, MemHeight = 256;
-bool const UseRenderer = true;
+int const MemWidth = 64, MemHeight = 64;
+bool const UseRenderer = false;
 
 int main() {
     try {

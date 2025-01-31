@@ -15,8 +15,11 @@ enum class TokenKind {
     ParenRight,
     BraceLeft,
     BraceRight,
+    BracketLeft,
+    BracketRight,
     Comma,
     Semicolon,
+    Colon,
     EndOfFile
 };
 

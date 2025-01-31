@@ -10,5 +10,5 @@ public:
     Node &visit(FunctionDeclaration &decl);
 
 private:
-    SymbolTable::unowned_ptr scope;
+    SymbolScope m_scope;
 };

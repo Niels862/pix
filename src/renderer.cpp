@@ -80,5 +80,5 @@ void Renderer::draw_frame(char const *data) {
     SDL_RenderCopy(m_renderer, m_texture, NULL, &dst);
     SDL_RenderPresent(m_renderer);
 
-    SDL_Delay(1000);
+    SDL_Delay(2);
 }

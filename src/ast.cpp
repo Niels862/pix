@@ -7,6 +7,7 @@ std::string const &to_string(NodeKind kind) {
     static std::unordered_map<NodeKind, std::string> const map = {
         { NodeKind::None, "<none>" },
         { NodeKind::Program, "program" },
+        { NodeKind::VariableDeclaration, "variable-declaration" },
         { NodeKind::FunctionDeclaration, "function-declaration" },
         { NodeKind::ExpressionStatement, "expression-statement" },
         { NodeKind::Call, "call" },
@@ -36,8 +37,8 @@ Statement::Statement()
         : Node{} {}
 
 JSON::ptr Statement::to_json() const {
-    JSONObject::ptr object = std::make_unique<JSONObject>();
-    object->add_key("kind", std::make_unique<JSONString>(to_string(kind())));
+    JSONObject::ptr object = JSONObject::Create();
+    object->add_key("kind", JSONString::Create(to_string(kind())));
     add_json_attributes(*object);
     return object;
 }
@@ -46,9 +47,9 @@ Expression::Expression()
         : Node{} {}
 
 JSON::ptr Expression::to_json() const {
-    JSONObject::ptr object = std::make_unique<JSONObject>();
+    JSONObject::ptr object = JSONObject::Create();
 
-    object->add_key("kind", std::make_unique<JSONString>(to_string(kind())));
+    object->add_key("kind", JSONString::Create(to_string(kind())));
     if (m_type != nullptr) {
         object->add_key("type", m_type->to_json());
     }
@@ -58,14 +59,14 @@ JSON::ptr Expression::to_json() const {
 }
 
 Program::Program(std::vector<Statement::ptr> stmts)
-        : Node{}, m_stmts{std::move(stmts)}, m_scope{} {}
+        : Node{}, m_stmts{std::move(stmts)}, m_symbols{} {}
 
 JSON::ptr Program::to_json() const {
-    JSONObject::ptr object = std::make_unique<JSONObject>();
+    JSONObject::ptr object = JSONObject::Create();
 
-    object->add_key("kind", std::make_unique<JSONString>(to_string(kind())));
+    object->add_key("kind", JSONString::Create(to_string(kind())));
 
-    JSONList::ptr list = std::make_unique<JSONList>();
+    JSONList::ptr list = JSONList::Create();
     for (Statement::ptr const &expr : m_stmts) {
         list->add(expr->to_json());
     }
@@ -75,12 +76,34 @@ JSON::ptr Program::to_json() const {
     return object;
 }
 
+VariableDeclaration::VariableDeclaration(Token const &ident)
+        : m_ident{ident} {}
+
+void VariableDeclaration::add_json_attributes(JSONObject &object) const {
+    object.add_key("identifier", JSONString::Create(m_ident.lexeme()));
+}
+
 FunctionDeclaration::FunctionDeclaration(Token const &func, 
+                                         std::vector<VariableDeclaration::ptr> params, 
                                          std::vector<Statement::ptr> body)
-        : m_func{func}, m_body{std::move(body)} {}
+        : m_func{func}, m_params{std::move(params)}, m_body{std::move(body)} {}
 
 void FunctionDeclaration::add_json_attributes(JSONObject &object) const {
-    object.add_key("function", std::make_unique<JSONString>(m_func.lexeme()));
+    object.add_key("function", JSONString::Create(m_func.lexeme()));
+    
+    JSONList::ptr params = JSONList::Create();
+    for (VariableDeclaration::ptr const &param : m_params) {
+        params->add(param->to_json());
+    }
+
+    object.add_key("params", std::move(params));
+
+    JSONList::ptr body = JSONList::Create();
+    for (Statement::ptr const &stmt : m_body) {
+        body->add(stmt->to_json());
+    }
+
+    object.add_key("body", std::move(body));
 }
 
 ExpressionStatement::ExpressionStatement(std::unique_ptr<Expression> expr)
@@ -95,9 +118,9 @@ Call::Call(Token const &func, std::vector<Expression::ptr> args)
           m_called{nullptr} {}
 
 void Call::add_json_attributes(JSONObject &object) const {
-    object.add_key("function", std::make_unique<JSONString>(m_func.lexeme()));
+    object.add_key("function", JSONString::Create(m_func.lexeme()));
 
-    JSONList::ptr list = std::make_unique<JSONList>();
+    JSONList::ptr list = JSONList::Create();
     for (Expression::ptr const &expr : m_args) {
         list->add(expr->to_json());
     }
@@ -109,8 +132,7 @@ Variable::Variable(Token const &ident)
         : Expression{}, m_ident{ident} {}
 
 void Variable::add_json_attributes(JSONObject &object) const {
-    object.add_key("identifier", 
-                    std::make_unique<JSONString>(m_ident.lexeme()));
+    object.add_key("identifier", JSONString::Create(m_ident.lexeme()));
 }
  
 Integer::Integer(Token const &literal)
@@ -118,5 +140,5 @@ Integer::Integer(Token const &literal)
 
 void Integer::add_json_attributes(JSONObject &object) const {
     int value = std::stoi(m_literal.lexeme());
-    object.add_key("value", std::make_unique<JSONInteger>(value));
+    object.add_key("value", JSONInteger::Create(value));
 }

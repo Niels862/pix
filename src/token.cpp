@@ -14,8 +14,11 @@ std::unordered_map<TokenKind, std::string> const tokenkind_to_string_map = {
     { TokenKind::ParenRight, ")" },
     { TokenKind::BraceLeft, "{" },
     { TokenKind::BraceRight, "}" },
+    { TokenKind::BracketLeft, "[" },
+    { TokenKind::BraceRight, "]" },
     { TokenKind::Comma, "," },
     { TokenKind::Semicolon, ";" },
+    { TokenKind::Colon, ":" },
     { TokenKind::EndOfFile, "end of file" }
 };
 

@@ -5,10 +5,10 @@
 #include <memory>
 
 SymbolResolver::SymbolResolver()
-        : scope{nullptr} {}
+        : m_scope{} {}
 
 Node &SymbolResolver::visit(Program &program) {
-    scope = &program.scope();
+    m_scope.enter(program.symbols());
 
     std::vector<Type::unowned_ptr> params = { Type::IntType() };
     Type::unowned_ptr ret_type = Type::VoidType();
@@ -18,12 +18,13 @@ Node &SymbolResolver::visit(Program &program) {
     FunctionSymbol::ptr func = std::make_unique<FunctionSymbol>();
     func->add_definition(std::move(type), ECallFunction::PrintInt);
 
-    scope->insert("print", std::move(func));
+    m_scope.current().insert("print", std::move(func));
 
     for (Statement::ptr &stmt : program.stmts()) {
         stmt->accept(*this);
     }
 
+    m_scope.leave(program.symbols());
     return program;
 }
 
@@ -36,7 +37,7 @@ Node &SymbolResolver::visit(FunctionDeclaration &decl) {
     FunctionSymbol::ptr func = std::make_unique<FunctionSymbol>();
     func->add_definition(std::move(type), &decl);
 
-    scope->insert(decl.func().lexeme(), std::move(func));
+    m_scope.current().insert(decl.func().lexeme(), std::move(func));
 
     return decl;
 }

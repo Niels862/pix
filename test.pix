@@ -1,8 +1,12 @@
-function f() {
+function f(x: int) {
     print(42);
     print(53);
-    f();
+}
+
+function g() {
+    print(62);
 }
 
 print(14);
+
 f();

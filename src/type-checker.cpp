@@ -16,9 +16,9 @@ Node &TypeChecker::visit(ExpressionStatement &stmt) {
 }
 
 Node &TypeChecker::visit(Program &program) {
-    scope = &program.scope();
+    m_scope.enter(program.symbols());
 
-    std::cout << *scope << std::endl;
+    std::cout << m_scope.current() << std::endl;
 
     for (Statement::ptr &stmt : program.stmts()) {
         stmt->accept(*this);
@@ -42,7 +42,7 @@ Node &TypeChecker::visit(Call &expr) {
 
     std::string const &name = expr.func().lexeme();
     
-    Symbol::unowned_ptr symbol = scope->lookup(name);
+    Symbol::unowned_ptr symbol = m_scope.lookup(expr.func());
     FunctionSymbol::unowned_ptr func_symbol = 
             dynamic_cast<FunctionSymbol *>(symbol);
 

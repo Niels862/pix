@@ -9,6 +9,8 @@ class Expression;
 
 class Program;
 
+class VariableDeclaration;
+
 class FunctionDeclaration;
 
 class ExpressionStatement;

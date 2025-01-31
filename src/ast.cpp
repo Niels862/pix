@@ -33,6 +33,17 @@ std::ostream &operator <<(std::ostream &stream, NodeKind kind) {
 Node::Node() 
         : m_type{} {}
 
+template <typename T>
+JSONList::ptr Node::to_json_list(std::vector<T> const &list) {
+    JSONList::ptr json_list = JSONList::Create();
+
+    for (T const &entry : list) {
+        json_list->add(entry->to_json());
+    }
+
+    return json_list;
+}
+
 Statement::Statement() 
         : Node{} {}
 
@@ -65,13 +76,7 @@ JSON::ptr Program::to_json() const {
     JSONObject::ptr object = JSONObject::Create();
 
     object->add_key("kind", JSONString::Create(to_string(kind())));
-
-    JSONList::ptr list = JSONList::Create();
-    for (Statement::ptr const &expr : m_stmts) {
-        list->add(expr->to_json());
-    }
-
-    object->add_key("stmts", std::move(list));
+    object->add_key("stmts", Node::to_json_list(m_stmts));
 
     return object;
 }
@@ -90,20 +95,8 @@ FunctionDeclaration::FunctionDeclaration(Token const &func,
 
 void FunctionDeclaration::add_json_attributes(JSONObject &object) const {
     object.add_key("function", JSONString::Create(m_func.lexeme()));
-    
-    JSONList::ptr params = JSONList::Create();
-    for (VariableDeclaration::ptr const &param : m_params) {
-        params->add(param->to_json());
-    }
-
-    object.add_key("params", std::move(params));
-
-    JSONList::ptr body = JSONList::Create();
-    for (Statement::ptr const &stmt : m_body) {
-        body->add(stmt->to_json());
-    }
-
-    object.add_key("body", std::move(body));
+    object.add_key("params", Node::to_json_list(m_params));
+    object.add_key("body", Node::to_json_list(m_body));
 }
 
 ExpressionStatement::ExpressionStatement(std::unique_ptr<Expression> expr)
@@ -119,13 +112,7 @@ Call::Call(Token const &func, std::vector<Expression::ptr> args)
 
 void Call::add_json_attributes(JSONObject &object) const {
     object.add_key("function", JSONString::Create(m_func.lexeme()));
-
-    JSONList::ptr list = JSONList::Create();
-    for (Expression::ptr const &expr : m_args) {
-        list->add(expr->to_json());
-    }
-
-    object.add_key("args", std::move(list));
+    object.add_key("args", Node::to_json_list(m_args));
 }
 
 Variable::Variable(Token const &ident)

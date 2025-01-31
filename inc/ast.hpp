@@ -43,6 +43,9 @@ public:
 
     void set_type(Type::unowned_ptr type) { m_type = type; }
 
+    template <typename T>
+    static JSONList::ptr to_json_list(std::vector<T> const &list);
+
 protected:
     Type::unowned_ptr m_type;
 };

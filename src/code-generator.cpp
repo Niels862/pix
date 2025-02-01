@@ -5,10 +5,12 @@
 #include <iomanip>
 
 CodeGenerator::CodeGenerator()
-        : m_data{}, m_func_labels{}, m_jobs{}, m_fresh_id{1} {}
+        : m_data{}, m_func_labels{}, m_jobs{}, m_fresh_id{1}, m_scope{} {}
 
 std::vector<CodeGenerator::entry_type> CodeGenerator::generate(Program &ast) {
     m_data.clear();
+
+    m_scope.enter(ast.symbols());
 
     emit(Label(0));
 
@@ -33,6 +35,8 @@ std::vector<CodeGenerator::entry_type> CodeGenerator::generate(Program &ast) {
         m_jobs.pop();
     }
 
+    m_scope.leave(ast.symbols());
+
     return m_data;
 }
 
@@ -51,9 +55,24 @@ Node &CodeGenerator::visit(Program &program) {
 }
 
 Node &CodeGenerator::visit(FunctionDeclaration &decl) {
+    m_scope.enter(decl.symbols());
+
+    int offset = 4 * (decl.params().size() + 1);
+
+    for (VariableDeclaration::ptr const &decl : decl.params()) {
+        Symbol::unowned_ptr symbol = m_scope.lookup(decl->ident());
+        LocalVariableSymbol::unowned_ptr param 
+                = dynamic_cast<LocalVariableSymbol *>(symbol);
+
+        param->set_offset(offset);
+        offset -= 4;
+    }
+
     for (Statement::ptr &stmt : decl.body()) {
         stmt->accept(*this);
     }
+
+    m_scope.leave(decl.symbols());
 
     return decl;
 }
@@ -62,6 +81,13 @@ Node &CodeGenerator::visit(ExpressionStatement &stmt) {
     stmt.expr().accept(*this);
     emit(OpCode::Pop);
     
+    return stmt;
+}
+
+Node &CodeGenerator::visit(ReturnStatement &stmt) {
+    stmt.value().accept(*this);
+    emit(OpCode::Ret);
+
     return stmt;
 }
 
@@ -92,6 +118,18 @@ Node &CodeGenerator::visit(Call &expr) {
 }
 
 Node &CodeGenerator::visit(Variable &expr) {
+    VariableSymbol::unowned_ptr var_symbol
+            = dynamic_cast<VariableSymbol *>(m_scope.lookup(expr.ident()));
+
+    LocalVariableSymbol::unowned_ptr var_local 
+            = dynamic_cast<LocalVariableSymbol *>(var_symbol);
+
+    if (var_local) {
+        emit(OpCode::LoadRel, var_local->offset());
+    } else {
+        throw FatalError("not implemented");
+    }
+
     return expr;
 }
 

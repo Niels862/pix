@@ -2,7 +2,7 @@ TARGET = pix
 CC = g++
 INC_DIR = inc
 SRC_DIR = src
-CFLAGS = -Wall -Wextra -Wpedantic -Werror -Wimplicit-fallthrough -Wno-strict-aliasing -Wfatal-errors -std=c++17 -O3
+CFLAGS = -Wall -Wextra -Wpedantic -Werror -Wimplicit-fallthrough -Wno-strict-aliasing -Wfatal-errors -std=c++17 -O3 -g
 LDFLAGS = `sdl2-config --libs` -lSDL2
 
 INCFLAGS = $(addprefix -I, $(INC_DIR))

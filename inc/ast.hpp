@@ -17,6 +17,7 @@ enum class NodeKind {
     FunctionDeclaration,
     NamedTypeAnnotation,
     ExpressionStatement,
+    ReturnStatement,
     Call,
     Variable,
     Integer
@@ -147,6 +148,8 @@ public:
 
     std::vector<Statement::ptr> &body() { return m_body; }
 
+    SymbolTable &symbols() { return m_symbols; }
+
     using unowned_ptr = FunctionDeclaration *;
 
     using ptr = std::unique_ptr<FunctionDeclaration>;
@@ -189,11 +192,26 @@ public:
 
     Expression &expr() { return *m_expr; }
     
-protected:
-    Expression::ptr m_expr;
-
 private:
     void add_json_attributes(JSONObject &object) const;
+
+    Expression::ptr m_expr;
+};
+
+class ReturnStatement : public Statement {
+public:
+    ReturnStatement(Expression::ptr value);
+
+    Node &accept(AstVisitor &visitor) { return visitor.visit(*this); } 
+
+    NodeKind kind() const { return NodeKind::ReturnStatement; }
+
+    Expression &value() { return *m_value; }
+    
+private:
+    void add_json_attributes(JSONObject &object) const;
+
+    Expression::ptr m_value;
 };
 
 class Call : public Expression {

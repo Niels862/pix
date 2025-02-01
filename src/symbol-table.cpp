@@ -35,7 +35,7 @@ std::ostream &operator <<(std::ostream &stream, SymbolTable const &table) {
             stream << ",\n";
         }
 
-        stream << std::setw(2) << "" << kv.first << ": " << *kv.second;
+        stream << std::setw(2) << "" << kv.first << ": [" << *kv.second << "]";
     }
 
     stream << "\n}";

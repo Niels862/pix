@@ -25,6 +25,10 @@ Node &AstVisitor::visit(ExpressionStatement &stmt) {
     return default_action(stmt);
 }
 
+Node &AstVisitor::visit(ReturnStatement &stmt) {
+    return default_action(stmt);
+}
+
 Node &AstVisitor::visit(Call &expr) {
     return default_action(expr);
 }

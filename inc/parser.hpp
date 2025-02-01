@@ -49,6 +49,8 @@ private:
 
     Statement::ptr parse_expression_statement();
 
+    Statement::ptr parse_return_statement();
+
     Expression::ptr parse_expression();
 
     Expression::ptr parse_value();

@@ -21,6 +21,8 @@ public:
 
     virtual Node &visit(ExpressionStatement &stmt);
 
+    virtual Node &visit(ReturnStatement &stmt);
+
     virtual Node &visit(Call &expr);
 
     virtual Node &visit(Variable &expr);

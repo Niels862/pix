@@ -62,7 +62,7 @@ private:
     Type::ptr m_type;
 };
 
-class VariableSymbol : Symbol {
+class VariableSymbol : public Symbol {
 public:
     VariableSymbol(Type::unowned_ptr type);
 
@@ -75,14 +75,21 @@ protected:
     Type::unowned_ptr m_type;
 };
 
-class LocalVariableSymbol : VariableSymbol {
+class LocalVariableSymbol : public VariableSymbol {
 public:
     LocalVariableSymbol(Type::unowned_ptr);
 
     void write(std::ostream &stream) const override;
 
-    using ptr = std::unique_ptr<VariableSymbol>;
-    using unowned_ptr = VariableSymbol *;
+    using ptr = std::unique_ptr<LocalVariableSymbol>;
+    using unowned_ptr = LocalVariableSymbol *;
+
+    int offset() const { return m_offset; }
+
+    void set_offset(int offset) { m_offset = offset; }
+
+private:
+    int m_offset;
 };
 
 class FunctionDefinition;
@@ -124,6 +131,9 @@ public:
 
     FunctionDeclaration *decl()
             { return std::get<FunctionDeclaration *>(m_def); }
+
+    friend std::ostream &operator <<(std::ostream &stream, 
+                                     FunctionDefinition const &def);
 
     using unowned_ptr = FunctionDefinition *;
 

@@ -2,6 +2,7 @@
 #define PIX_TYPE_CHECKER_HPP
 
 #include "visitor.hpp"
+#include "ast.hpp"
 #include "symbol-table.hpp"
 
 class TypeChecker : public AstVisitor {
@@ -18,7 +19,7 @@ public:
 
     Node &visit(ExpressionStatement &stmt) override;
 
-    Node &visit(NamedTypeAnnotation &anno) override;
+    Node &visit(ReturnStatement &stmt) override;
 
     Node &visit(Call &expr) override;
     
@@ -27,6 +28,9 @@ public:
     Node &visit(Integer &expr) override;
 
 private:
+    void coerce_types(Expression::ptr &target, Type::unowned_ptr expected, 
+                      TextPosition const &pos, std::string const &context);
+
     SymbolScope m_scope;
 };
 

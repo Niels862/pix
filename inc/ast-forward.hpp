@@ -7,6 +7,8 @@ class Statement;
 
 class Expression;
 
+class TypeAnnotation;
+
 class Program;
 
 class VariableDeclaration;
@@ -16,6 +18,8 @@ class FunctionDeclaration;
 class NamedTypeAnnotation;
 
 class ExpressionStatement;
+
+class ReturnStatement;
 
 class Call;
 

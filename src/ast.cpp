@@ -11,6 +11,7 @@ std::string const &to_string(NodeKind kind) {
         { NodeKind::FunctionDeclaration, "function-declaration" },
         { NodeKind::NamedTypeAnnotation, "named-type-annotation" },
         { NodeKind::ExpressionStatement, "expression-statement" },
+        { NodeKind::ReturnStatement, "return-statement" },
         { NodeKind::Call, "call" },
         { NodeKind::Variable, "variable" },
         { NodeKind::Integer, "integer" }
@@ -126,11 +127,18 @@ void NamedTypeAnnotation::add_json_attributes(JSONObject &object) const {
     object.add_key("identifier", JSONString::Create(m_ident.lexeme()));
 }
 
-ExpressionStatement::ExpressionStatement(std::unique_ptr<Expression> expr)
+ExpressionStatement::ExpressionStatement(Expression::ptr expr)
         : Statement{}, m_expr{std::move(expr)} {}
 
 void ExpressionStatement::add_json_attributes(JSONObject &object) const {
     object.add_key("expr", m_expr->to_json());
+}
+
+ReturnStatement::ReturnStatement(Expression::ptr value)
+        : m_value{std::move(value)} {}
+
+void ReturnStatement::add_json_attributes(JSONObject &object) const {
+    object.add_key("value", m_value->to_json());
 }
 
 Call::Call(Token const &func, std::vector<Expression::ptr> args)

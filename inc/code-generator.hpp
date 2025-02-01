@@ -4,6 +4,7 @@
 #include "visitor.hpp"
 #include "instruction.hpp"
 #include "symbol.hpp"
+#include "symbol-table.hpp"
 #include <vector>
 #include <queue>
 #include <unordered_map>
@@ -25,6 +26,8 @@ public:
     Node &visit(FunctionDeclaration &decl) override;
 
     Node &visit(ExpressionStatement &stmt) override;
+
+    Node &visit(ReturnStatement &stmt) override;
 
     Node &visit(Call &expr) override;
     
@@ -49,6 +52,8 @@ private:
     std::queue<FunctionDefinition *> m_jobs;
 
     int m_fresh_id;
+
+    SymbolScope m_scope;
 };
 
 std::ostream &operator <<(std::ostream &stream, 

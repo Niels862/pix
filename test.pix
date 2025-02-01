@@ -1,12 +1,14 @@
 function f(x: int) {
-    print(42);
-    print(53);
+    print(x);
+
+    g(89, x);
+
+    return 133;
 }
 
-function g() {
-    print(62);
+function g(x: int, y: int) {
+    print(x);
+    print(y);
 }
 
-print(14);
-
-f();
+f(249);

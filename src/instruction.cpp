@@ -2,6 +2,7 @@
 #include "error.hpp"
 #include <unordered_map>
 #include <sstream>
+#include <iomanip>
 
 std::string const &to_string(OpCode instr) {
     static std::unordered_map<OpCode, std::string> const map = {
@@ -10,7 +11,11 @@ std::string const &to_string(OpCode instr) {
         { OpCode::Call, "call" },
         { OpCode::Ret, "ret" },
         { OpCode::Push, "push" },
-        { OpCode::Pop, "pop"}
+        { OpCode::Pop, "pop"},
+        { OpCode::LoadRel, "load-rel" },
+        { OpCode::LoadAbs, "load-abs" },
+        { OpCode::StoreRel, "store-rel" },
+        { OpCode::StoreAbs, "store-abs" }
     };
 
     auto const &it = map.find(instr);
@@ -76,7 +81,8 @@ Instruction::Instruction(OpCode opcode, uint32_t arg)
 Instruction Instruction::Disassemble(uint32_t assembled) {
     auto interpretation 
             = *reinterpret_cast<Instruction::interpretation *>(&assembled);
-    return Instruction(interpretation.opcode, interpretation.data);
+    return Instruction(interpretation.opcode, 
+                       Instruction::sign_extend_24_32(interpretation.data));
 }
 
 uint32_t Instruction::assemble(Label::map_type const &labels) const {
@@ -122,9 +128,16 @@ uint32_t Instruction::assemble_arg(Label::map_type const &labels) const {
 std::ostream &operator <<(std::ostream &stream, Instruction const &instr) {
     stream << instr.m_opcode;
     if (instr.m_arg) {
-        std::visit([](auto &&arg){ 
-            std::cout << " " << arg; 
-        }, instr.m_arg.value());
+        stream << " ";
+
+        auto arg = instr.m_arg.value();
+        if (std::holds_alternative<uint32_t>(arg)) {
+            stream << static_cast<int32_t>(std::get<uint32_t>(arg));
+        } else if (std::holds_alternative<Label>(arg)) {
+            stream << std::get<Label>(arg);
+        } else {
+            stream << std::get<ECallFunction>(arg);
+        }
     }
 
     return stream;

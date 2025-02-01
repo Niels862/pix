@@ -14,7 +14,11 @@ enum class OpCode {
     Call,
     Ret,
     Push,
-    Pop
+    Pop,
+    LoadRel,
+    LoadAbs,
+    StoreRel,
+    StoreAbs
 };
 
 std::string const &to_string(OpCode instr);
@@ -64,6 +68,11 @@ public:
 
     static uint32_t unpack_data(uint32_t assembled)
             { return (assembled >> 8) & 0xFFFFFF; }
+
+    static int32_t sign_extend_24_32(uint32_t val24) {
+        uint32_t mask = 1u << (24 - 1);
+        return (val24 ^ mask) - mask;
+    }
 
     uint32_t assemble(Label::map_type const &labels) const;
 

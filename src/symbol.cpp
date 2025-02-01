@@ -25,7 +25,7 @@ VariableSymbol::VariableSymbol(Type::unowned_ptr type)
         : Symbol{}, m_type{type} {}
 
 LocalVariableSymbol::LocalVariableSymbol(Type::unowned_ptr type)
-        : VariableSymbol{type} {}
+        : VariableSymbol{type}, m_offset{} {}
 
 void LocalVariableSymbol::write(std::ostream &stream) const {
     stream << "LocalVariable: " << *m_type;
@@ -35,7 +35,17 @@ FunctionSymbol::FunctionSymbol()
         : Symbol{}, m_definitions{} {}
 
 void FunctionSymbol::write(std::ostream &stream) const {
-    stream << "Function: " << m_definitions.size() << " definitions";
+    stream << "Function: ";
+
+    bool first = true;
+    for (FunctionDefinition const &def : m_definitions) {
+        if (first) {
+            first = false;
+        } else {
+            stream << " | ";
+        }
+        stream << def;
+    }
 }
 
 void FunctionSymbol::add_definition(FunctionType::ptr type, 
@@ -55,3 +65,8 @@ FunctionDefinition::FunctionDefinition(FunctionType::ptr type,
 FunctionDefinition::FunctionDefinition(FunctionType::ptr type, 
                                        FunctionDeclaration *decl)
         : m_type{std::move(type)}, m_def{decl} {}
+
+std::ostream &operator <<(std::ostream &stream, FunctionDefinition const &def) {
+    stream << *def.m_type;
+    return stream;
+}

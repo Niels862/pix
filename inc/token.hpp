@@ -7,10 +7,13 @@
 
 enum class TokenKind {
     None,
+
     Identifier,
     Integer,
+    
     Function,
     Return,
+
     ParenLeft,
     ParenRight,
     BraceLeft,
@@ -20,6 +23,7 @@ enum class TokenKind {
     Comma,
     Semicolon,
     Colon,
+    
     EndOfFile
 };
 

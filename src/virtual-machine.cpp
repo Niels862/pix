@@ -1,5 +1,6 @@
 #include "virtual-machine.hpp"
 #include "instruction.hpp"
+#include <iomanip>
 
 VirtualMachine::VirtualMachine(Memory &memory)
         : m_memory{memory}, 
@@ -27,7 +28,7 @@ void VirtualMachine::execute_step() {
     OpCode opcode = Instruction::unpack_opcode(assembled);
     uint32_t data = Instruction::unpack_data(assembled);
 
-    uint32_t x;
+    uint32_t x, addr;
 
     std::cout << Instruction::Disassemble(assembled) << std::endl;
 
@@ -65,6 +66,28 @@ void VirtualMachine::execute_step() {
 
         case OpCode::Pop:
             m_memory.pop_word();
+            break;
+
+        case OpCode::LoadRel:
+            addr = m_base + Instruction::sign_extend_24_32(data);
+            x = m_memory.get_word(addr);
+            m_memory.push_word(x);
+            break;
+
+        case OpCode::LoadAbs:
+            x = m_memory.get_word(data);
+            m_memory.push_word(x);
+            break;
+
+        case OpCode::StoreRel:
+            addr = m_base + Instruction::sign_extend_24_32(data);
+            x = m_memory.pop_word();
+            m_memory.set_word(x, addr);
+            break;
+
+        case OpCode::StoreAbs:
+            x = m_memory.pop_word();
+            m_memory.set_word(x, data);
             break;
     }
 

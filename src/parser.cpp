@@ -50,7 +50,7 @@ Token const &Parser::expect(TokenKind kind) {
     }
 
     std::stringstream ss;
-    ss << "Expected " << kind << ", but got " << token.kind();
+    ss << "Expected `" << kind << "`, but got `" << token.kind() << "`";
     throw ParserError(token.pos(), ss.str());
 }
 
@@ -71,6 +71,10 @@ Token const &Parser::peek(std::size_t offset) const {
 Statement::ptr Parser::parse_statement() {
     if (matches(TokenKind::Function)) {
         return parse_function_declaration();
+    }
+
+    if (matches(TokenKind::Return)) {
+        return parse_return_statement();
     }
 
     return parse_expression_statement();
@@ -142,10 +146,17 @@ std::vector<Statement::ptr> Parser::parse_body() {
 Statement::ptr Parser::parse_expression_statement() {
     Statement::ptr stmt = 
             std::make_unique<ExpressionStatement>(parse_expression());
-
     expect(TokenKind::Semicolon);
 
     return stmt;
+}
+
+Statement::ptr Parser::parse_return_statement() {
+    expect(TokenKind::Return);
+    Expression::ptr value = parse_expression();
+    expect(TokenKind::Semicolon);
+
+    return std::make_unique<ReturnStatement>(std::move(value));
 }
 
 Expression::ptr Parser::parse_expression() {
@@ -174,7 +185,7 @@ Expression::ptr Parser::parse_atom() {
     }
 
     std::stringstream ss;
-    ss << "Expected value, but got " << token.kind();
+    ss << "Expected value, but got `" << token.kind() << "`";
     throw ParserError(token.pos(), ss.str());
 }
 

@@ -18,7 +18,7 @@ std::vector<CodeGenerator::entry_type> CodeGenerator::generate(Program &ast) {
         }
     }
 
-    emit(OpCode::PushImm, 0);
+    emit(OpCode::Push, 0);
     emit(OpCode::ECall, ECallFunction::Exit);
     
     while (!m_jobs.empty()) {
@@ -26,6 +26,8 @@ std::vector<CodeGenerator::entry_type> CodeGenerator::generate(Program &ast) {
         
         emit(m_func_labels.find(&def)->second);
         def.decl()->accept(*this);
+
+        emit(OpCode::Push, 0);
         emit(OpCode::Ret);
 
         m_jobs.pop();
@@ -58,6 +60,8 @@ Node &CodeGenerator::visit(FunctionDeclaration &decl) {
 
 Node &CodeGenerator::visit(ExpressionStatement &stmt) {
     stmt.expr().accept(*this);
+    emit(OpCode::Pop);
+    
     return stmt;
 }
 
@@ -92,7 +96,7 @@ Node &CodeGenerator::visit(Variable &expr) {
 }
 
 Node &CodeGenerator::visit(Integer &expr) {
-    emit(OpCode::PushImm, std::stoi(expr.literal().lexeme()));
+    emit(OpCode::Push, std::stoi(expr.literal().lexeme()));
     return expr;
 }
 

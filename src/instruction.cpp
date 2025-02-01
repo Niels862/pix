@@ -9,7 +9,8 @@ std::string const &to_string(OpCode instr) {
         { OpCode::ECall, "ecall" },
         { OpCode::Call, "call" },
         { OpCode::Ret, "ret" },
-        { OpCode::PushImm, "pushimm" }
+        { OpCode::Push, "push" },
+        { OpCode::Pop, "pop"}
     };
 
     auto const &it = map.find(instr);

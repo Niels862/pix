@@ -13,7 +13,8 @@ enum class OpCode {
     ECall,
     Call,
     Ret,
-    PushImm
+    Push,
+    Pop
 };
 
 std::string const &to_string(OpCode instr);

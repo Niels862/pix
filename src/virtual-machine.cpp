@@ -3,8 +3,8 @@
 
 VirtualMachine::VirtualMachine(Memory &memory)
         : m_memory{memory}, 
-          m_ip{0}, m_sp{memory.size()}, m_terminated{false} {
-    m_memory.set_top(m_sp);
+          m_ip{0}, m_base{133}, m_terminated{false} {
+    m_memory.set_top(memory.size());
 }
 
 void VirtualMachine::execute_quantum(int q) {
@@ -27,6 +27,8 @@ void VirtualMachine::execute_step() {
     OpCode opcode = Instruction::unpack_opcode(assembled);
     uint32_t data = Instruction::unpack_data(assembled);
 
+    uint32_t x;
+
     std::cout << Instruction::Disassemble(assembled) << std::endl;
 
     switch (opcode) {
@@ -38,16 +40,31 @@ void VirtualMachine::execute_step() {
             break;
 
         case OpCode::Call:
+            m_memory.push_word(m_base);
             m_memory.push_word(m_ip + 4);
+
             jump_to(data);
+            
+            m_base = m_memory.top();
             break;
 
         case OpCode::Ret:
+            x = m_memory.pop_word();
+
+            m_memory.set_top(m_base);
+
             jump_to_address(m_memory.pop_word());
+            m_base = m_memory.pop_word();
+
+            m_memory.push_word(x);
             break;
 
-        case OpCode::PushImm:
+        case OpCode::Push:
             m_memory.push_word(data);
+            break;
+
+        case OpCode::Pop:
+            m_memory.pop_word();
             break;
     }
 
@@ -61,6 +78,7 @@ void VirtualMachine::execute_ecall(ECallFunction ecall) {
 
         case ECallFunction::PrintInt:
             std::cout << ">> " << m_memory.pop_word() << std::endl;
+            m_memory.push_word(0);
             break;
 
         case ECallFunction::Exit:

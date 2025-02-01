@@ -25,7 +25,7 @@ private:
 
     std::size_t m_ip;
 
-    std::size_t m_sp;
+    std::size_t m_base;
 
     bool m_terminated;
 };

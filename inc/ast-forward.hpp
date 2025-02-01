@@ -13,6 +13,8 @@ class VariableDeclaration;
 
 class FunctionDeclaration;
 
+class NamedTypeAnnotation;
+
 class ExpressionStatement;
 
 class Call;

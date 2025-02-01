@@ -15,6 +15,7 @@ enum class NodeKind {
     Program,
     VariableDeclaration,
     FunctionDeclaration,
+    NamedTypeAnnotation,
     ExpressionStatement,
     Call,
     Variable,
@@ -74,6 +75,18 @@ private:
     virtual void add_json_attributes(JSONObject &object) const = 0;
 };
 
+class TypeAnnotation : public Node {
+public:
+    TypeAnnotation();
+
+    JSON::ptr to_json() const override;
+
+    using ptr = std::unique_ptr<TypeAnnotation>;
+
+private:
+    virtual void add_json_attributes(JSONObject &object) const = 0;
+};
+
 class Program : public Node {
 public:
     Program(std::vector<Statement::ptr> stmts);
@@ -98,7 +111,7 @@ private:
 
 class VariableDeclaration : public Statement {
 public:
-    VariableDeclaration(Token const &ident);
+    VariableDeclaration(Token const &ident, TypeAnnotation::ptr type);
 
     Node &accept(AstVisitor &visitor) { return visitor.visit(*this); } 
 
@@ -106,12 +119,16 @@ public:
 
     Token const &ident() const { return m_ident; }
 
+    TypeAnnotation &annotation() { return *m_annotation; }
+
     using ptr = std::unique_ptr<VariableDeclaration>;
 
 private:
     void add_json_attributes(JSONObject &object) const;
 
     Token m_ident;
+
+    TypeAnnotation::ptr m_annotation;
 };
 
 class FunctionDeclaration : public Statement {
@@ -125,6 +142,8 @@ public:
     virtual NodeKind kind() const { return NodeKind::FunctionDeclaration; }
 
     Token const &func() const { return m_func; }
+
+    std::vector<VariableDeclaration::ptr> &params() { return m_params; }
 
     std::vector<Statement::ptr> &body() { return m_body; }
 
@@ -144,13 +163,29 @@ private:
     SymbolTable m_symbols;
 };
 
+class NamedTypeAnnotation : public TypeAnnotation {
+public:
+    NamedTypeAnnotation(Token const &ident);
+
+    Node &accept(AstVisitor &visitor) { return visitor.visit(*this); } 
+
+    NodeKind kind() const { return NodeKind::NamedTypeAnnotation; }
+
+    Token const &ident() const { return m_ident; }
+
+private:
+    void add_json_attributes(JSONObject &object) const;
+
+    Token m_ident;
+};
+
 class ExpressionStatement : public Statement {
 public:
     ExpressionStatement(Expression::ptr expr);
 
     Node &accept(AstVisitor &visitor) { return visitor.visit(*this); } 
 
-    virtual NodeKind kind() const { return NodeKind::ExpressionStatement; }
+    NodeKind kind() const { return NodeKind::ExpressionStatement; }
 
     Expression &expr() { return *m_expr; }
     

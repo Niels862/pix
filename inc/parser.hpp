@@ -43,6 +43,8 @@ private:
 
     VariableDeclaration::ptr parse_variable_declaration();
 
+    TypeAnnotation::ptr parse_type_annotation();
+
     std::vector<Statement::ptr> parse_body();
 
     Statement::ptr parse_expression_statement();

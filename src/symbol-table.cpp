@@ -67,5 +67,7 @@ Symbol::unowned_ptr SymbolScope::lookup(Token const &ident) const {
         }
     }
 
-    throw ParserError(ident.pos(), ident.lexeme() + "is undefined");
+    std::stringstream ss;
+    ss << "`" << ident.lexeme() << "` is not defined in this scope";
+    throw ParserError(ident.pos(), ss.str());
 }

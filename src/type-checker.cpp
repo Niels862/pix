@@ -15,6 +15,20 @@ Node &TypeChecker::visit(ExpressionStatement &stmt) {
     return stmt;
 }
 
+Node &TypeChecker::visit(NamedTypeAnnotation &anno) {
+    Symbol::unowned_ptr symbol = m_scope.lookup(anno.ident());
+    TypeSymbol::unowned_ptr type_symbol = 
+            dynamic_cast<TypeSymbol *>(symbol);
+
+    if (!type_symbol) {
+        throw ParserError(anno.ident().pos(), 
+                          anno.ident().lexeme() + " is not a type");
+    }
+
+    anno.set_type(type_symbol->type());
+    return anno;
+}
+
 Node &TypeChecker::visit(Program &program) {
     m_scope.enter(program.symbols());
 
@@ -27,7 +41,17 @@ Node &TypeChecker::visit(Program &program) {
     return program;
 }
 
+Node &TypeChecker::visit(VariableDeclaration &decl) {
+    decl.annotation().accept(*this);
+
+    return decl;
+}
+
 Node &TypeChecker::visit(FunctionDeclaration &decl) {
+    for (VariableDeclaration::ptr &param : decl.params()) {
+        param->accept(*this);
+    }
+
     for (Statement::ptr &stmt : decl.body()) {
         stmt->accept(*this);
     }

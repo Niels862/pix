@@ -9,6 +9,7 @@ std::string const &to_string(NodeKind kind) {
         { NodeKind::Program, "program" },
         { NodeKind::VariableDeclaration, "variable-declaration" },
         { NodeKind::FunctionDeclaration, "function-declaration" },
+        { NodeKind::NamedTypeAnnotation, "named-type-annotation" },
         { NodeKind::ExpressionStatement, "expression-statement" },
         { NodeKind::Call, "call" },
         { NodeKind::Variable, "variable" },
@@ -49,8 +50,10 @@ Statement::Statement()
 
 JSON::ptr Statement::to_json() const {
     JSONObject::ptr object = JSONObject::Create();
+
     object->add_key("kind", JSONString::Create(to_string(kind())));
     add_json_attributes(*object);
+
     return object;
 }
 
@@ -58,6 +61,21 @@ Expression::Expression()
         : Node{} {}
 
 JSON::ptr Expression::to_json() const {
+    JSONObject::ptr object = JSONObject::Create();
+
+    object->add_key("kind", JSONString::Create(to_string(kind())));
+    if (m_type != nullptr) {
+        object->add_key("type", m_type->to_json());
+    }
+    add_json_attributes(*object);
+
+    return object;
+}
+
+TypeAnnotation::TypeAnnotation()
+        {}
+
+JSON::ptr TypeAnnotation::to_json() const {
     JSONObject::ptr object = JSONObject::Create();
 
     object->add_key("kind", JSONString::Create(to_string(kind())));
@@ -81,11 +99,13 @@ JSON::ptr Program::to_json() const {
     return object;
 }
 
-VariableDeclaration::VariableDeclaration(Token const &ident)
-        : m_ident{ident} {}
+VariableDeclaration::VariableDeclaration(Token const &ident, 
+                                         TypeAnnotation::ptr type)
+        : m_ident{ident}, m_annotation{std::move(type)} {}
 
 void VariableDeclaration::add_json_attributes(JSONObject &object) const {
     object.add_key("identifier", JSONString::Create(m_ident.lexeme()));
+    object.add_key("annotation", m_annotation->to_json());
 }
 
 FunctionDeclaration::FunctionDeclaration(Token const &func, 
@@ -97,6 +117,13 @@ void FunctionDeclaration::add_json_attributes(JSONObject &object) const {
     object.add_key("function", JSONString::Create(m_func.lexeme()));
     object.add_key("params", Node::to_json_list(m_params));
     object.add_key("body", Node::to_json_list(m_body));
+}
+
+NamedTypeAnnotation::NamedTypeAnnotation(Token const &ident)
+        : TypeAnnotation{}, m_ident{ident} {}
+
+void NamedTypeAnnotation::add_json_attributes(JSONObject &object) const {
+    object.add_key("identifier", JSONString::Create(m_ident.lexeme()));
 }
 
 ExpressionStatement::ExpressionStatement(std::unique_ptr<Expression> expr)

@@ -8,18 +8,34 @@ std::ostream &operator <<(std::ostream &stream, Symbol const &symbol) {
     return stream;
 }
 
-TypeSymbol::TypeSymbol(Type::ptr type)
-        : Symbol{}, m_type{std::move(type)} {}
+TypeSymbol::TypeSymbol()
+        : Symbol{} {}
 
 void TypeSymbol::write(std::ostream &stream) const {
-    stream << "Type<" << *m_type << ">";
+    stream << "Type: " << *type();
+}
+
+BasicTypeSymbol::BasicTypeSymbol(Type::unowned_ptr type)
+        : TypeSymbol{}, m_type{type} {}
+
+DeclaredTypeSymbol::DeclaredTypeSymbol(Type::ptr type)  
+        : TypeSymbol{}, m_type{std::move(type)} {}
+
+VariableSymbol::VariableSymbol(Type::unowned_ptr type)
+        : Symbol{}, m_type{type} {}
+
+LocalVariableSymbol::LocalVariableSymbol(Type::unowned_ptr type)
+        : VariableSymbol{type} {}
+
+void LocalVariableSymbol::write(std::ostream &stream) const {
+    stream << "LocalVariable: " << *m_type;
 }
 
 FunctionSymbol::FunctionSymbol()
         : Symbol{}, m_definitions{} {}
 
 void FunctionSymbol::write(std::ostream &stream) const {
-    stream << "Function<" << m_definitions.size() << " definitions>";
+    stream << "Function: " << m_definitions.size() << " definitions";
 }
 
 void FunctionSymbol::add_definition(FunctionType::ptr type, 

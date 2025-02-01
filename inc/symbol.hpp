@@ -26,17 +26,63 @@ public:
 
 class TypeSymbol : public Symbol {
 public:
-    TypeSymbol(Type::ptr type);
+    TypeSymbol();
 
-    void write(std::ostream &stream) const;
+    void write(std::ostream &stream) const override;
 
     using ptr = std::unique_ptr<TypeSymbol>;
     using unowned_ptr = TypeSymbol *;
 
-    Type::unowned_ptr type() const { return m_type.get(); }
+    virtual Type::unowned_ptr type() const = 0;
+};
+
+class BasicTypeSymbol : public TypeSymbol {
+public:
+    BasicTypeSymbol(Type::unowned_ptr type);
+
+    using ptr = std::unique_ptr<BasicTypeSymbol>;
+    using unowned_ptr = BasicTypeSymbol *;
+
+    Type::unowned_ptr type() const override { return m_type; }
+
+private:
+    Type::unowned_ptr m_type;
+};
+
+class DeclaredTypeSymbol : public TypeSymbol {
+public:
+    DeclaredTypeSymbol(Type::ptr type);
+
+    using ptr = std::unique_ptr<BasicTypeSymbol>;
+    using unowned_ptr = BasicTypeSymbol *;
+
+    Type::unowned_ptr type() const override { return m_type.get(); }
 
 private:
     Type::ptr m_type;
+};
+
+class VariableSymbol : Symbol {
+public:
+    VariableSymbol(Type::unowned_ptr type);
+
+    using ptr = std::unique_ptr<VariableSymbol>;
+    using unowned_ptr = VariableSymbol *;
+
+    Type::unowned_ptr type() const { return m_type; }
+
+protected:
+    Type::unowned_ptr m_type;
+};
+
+class LocalVariableSymbol : VariableSymbol {
+public:
+    LocalVariableSymbol(Type::unowned_ptr);
+
+    void write(std::ostream &stream) const override;
+
+    using ptr = std::unique_ptr<VariableSymbol>;
+    using unowned_ptr = VariableSymbol *;
 };
 
 class FunctionDefinition;
@@ -45,7 +91,7 @@ class FunctionSymbol : public Symbol {
 public:
     FunctionSymbol();
 
-    void write(std::ostream &stream) const;
+    void write(std::ostream &stream) const override;
 
     using ptr = std::unique_ptr<FunctionSymbol>;
     using unowned_ptr = FunctionSymbol *;

@@ -12,9 +12,13 @@ public:
 
     Node &visit(Program &program) override;
 
+    Node &visit(VariableDeclaration &decl) override;
+
     Node &visit(FunctionDeclaration &decl) override;
 
     Node &visit(ExpressionStatement &stmt) override;
+
+    Node &visit(NamedTypeAnnotation &anno) override;
 
     Node &visit(Call &expr) override;
     

@@ -10,6 +10,8 @@ SymbolResolver::SymbolResolver()
 Node &SymbolResolver::visit(Program &program) {
     m_scope.enter(program.symbols());
 
+    /* TEMP, TODO: std functions  */
+
     std::vector<Type::unowned_ptr> params = { Type::IntType() };
     Type::unowned_ptr ret_type = Type::VoidType();
 
@@ -19,6 +21,16 @@ Node &SymbolResolver::visit(Program &program) {
     func->add_definition(std::move(type), ECallFunction::PrintInt);
 
     m_scope.current().insert("print", std::move(func));
+
+    /* TEMP, TODO: basic types */
+
+    BasicTypeSymbol::ptr int_type = 
+            std::make_unique<BasicTypeSymbol>(Type::IntType());
+    m_scope.current().insert("int", std::move(int_type));
+
+    BasicTypeSymbol::ptr void_type = 
+            std::make_unique<BasicTypeSymbol>(Type::VoidType());
+    m_scope.current().insert("void", std::move(void_type));
 
     for (Statement::ptr &stmt : program.stmts()) {
         stmt->accept(*this);

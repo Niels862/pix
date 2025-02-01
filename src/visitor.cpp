@@ -17,6 +17,10 @@ Node &AstVisitor::visit(FunctionDeclaration &decl) {
     return default_action(decl);
 }
 
+Node &AstVisitor::visit(NamedTypeAnnotation &anno) {
+    return default_action(anno);
+}
+
 Node &AstVisitor::visit(ExpressionStatement &stmt) {
     return default_action(stmt);
 }

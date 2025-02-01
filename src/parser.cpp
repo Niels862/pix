@@ -112,10 +112,15 @@ std::vector<VariableDeclaration::ptr> Parser::parse_function_parameters() {
 VariableDeclaration::ptr Parser::parse_variable_declaration() {
     Token ident = expect(TokenKind::Identifier);
 
-    expect(TokenKind::Colon); // temp
-    Token type = expect(TokenKind::Identifier);
+    expect(TokenKind::Colon);
+    TypeAnnotation::ptr type = parse_type_annotation();
     
-    return std::make_unique<VariableDeclaration>(ident);
+    return std::make_unique<VariableDeclaration>(ident, std::move(type));
+}
+
+TypeAnnotation::ptr Parser::parse_type_annotation() {
+    Token ident = expect(TokenKind::Identifier);
+    return std::make_unique<NamedTypeAnnotation>(ident);
 }
 
 std::vector<Statement::ptr> Parser::parse_body() {

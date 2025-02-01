@@ -17,6 +17,8 @@ public:
 
     virtual Node &visit(FunctionDeclaration &decl);
 
+    virtual Node &visit(NamedTypeAnnotation &anno);
+
     virtual Node &visit(ExpressionStatement &stmt);
 
     virtual Node &visit(Call &expr);

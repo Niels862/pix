@@ -21,17 +21,17 @@ Node &SymbolResolver::visit(Program &program) {
     FunctionSymbol::ptr func = std::make_unique<FunctionSymbol>();
     func->add_definition(std::move(type), ECallFunction::PrintInt);
 
-    m_scope.current().insert("print", std::move(func));
+    m_scope.declare("print", std::move(func));
 
     /* TEMP, TODO: basic types */
 
     BasicTypeSymbol::ptr int_type = 
             std::make_unique<BasicTypeSymbol>(Type::IntType());
-    m_scope.current().insert("int", std::move(int_type));
+    m_scope.declare("int", std::move(int_type));
 
     BasicTypeSymbol::ptr void_type = 
             std::make_unique<BasicTypeSymbol>(Type::VoidType());
-    m_scope.current().insert("void", std::move(void_type));
+    m_scope.declare("void", std::move(void_type));
 
     /*for (Statement::ptr &stmt : program.stmts()) {
         // TODO ... forward declare classes here
@@ -50,7 +50,7 @@ Node &SymbolResolver::visit(VariableDeclaration &decl) {
 
     LocalVariableSymbol::ptr var 
             = std::make_unique<LocalVariableSymbol>(decl.annotation().type());
-    m_scope.current().insert(decl.ident().lexeme(), std::move(var));
+    m_scope.declare(decl.ident(), std::move(var));
     
     return decl;
 }
@@ -73,7 +73,7 @@ Node &SymbolResolver::visit(FunctionDeclaration &decl) {
 
     m_scope.leave(decl.symbols());
 
-    m_scope.current().insert(decl.func().lexeme(), std::move(func));
+    m_scope.declare(decl.func(), std::move(func));
 
     return decl;
 }

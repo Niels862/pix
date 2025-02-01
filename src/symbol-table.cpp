@@ -71,3 +71,32 @@ Symbol::unowned_ptr SymbolScope::lookup(Token const &ident) const {
     ss << "`" << ident.lexeme() << "` is not defined in this scope";
     throw ParserError(ident.pos(), ss.str());
 }
+
+void SymbolScope::declare(std::string const &ident, Symbol::ptr symbol) {
+    std::string const lexeme = ident;
+    Token const token(TextPosition(), TokenKind::Synthetic, std::move(lexeme));
+
+    try {
+        declare(token, std::move(symbol));
+    } catch (ParserError const &e) {
+        std::stringstream ss;
+        ss << "Fatal: " << e.what();
+        throw FatalError(ss.str());
+    }
+}
+
+void SymbolScope::declare(Token const &ident, Symbol::ptr symbol) {
+    if (current().defines(ident.lexeme())) {
+        std::stringstream ss;
+        ss << "`" << ident.lexeme() << "` was already declared in this scope";
+        throw ParserError(ident.pos(), ss.str());
+    }
+
+    if (dynamic_cast<TypeSymbol *>(global().lookup(ident))) {
+        std::stringstream ss;
+        ss << "`" << ident.lexeme() << "` shadows a type";
+        throw ParserError(ident.pos(), ss.str());
+    }
+
+    current().insert(ident.lexeme(), std::move(symbol));
+}

@@ -39,6 +39,10 @@ public:
 
     Symbol::unowned_ptr lookup(Token const &ident) const;
 
+    void declare(std::string const &ident, Symbol::ptr symbol);
+
+    void declare(Token const &ident, Symbol::ptr symbol);
+
     SymbolTable &current() { return *m_tables.back(); }
 
     SymbolTable &global() { return *m_tables.front(); }

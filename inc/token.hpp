@@ -23,6 +23,8 @@ enum class TokenKind {
     Comma,
     Semicolon,
     Colon,
+
+    Synthetic,
     
     EndOfFile
 };

@@ -19,6 +19,7 @@ std::unordered_map<TokenKind, std::string> const tokenkind_to_string_map = {
     { TokenKind::Comma, "," },
     { TokenKind::Semicolon, ";" },
     { TokenKind::Colon, ":" },
+    { TokenKind::Synthetic, "<synthetic>" },
     { TokenKind::EndOfFile, "end of file" }
 };
 

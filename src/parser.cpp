@@ -299,9 +299,13 @@ Expression::ptr Parser::parse_term() {
 }
 
 Expression::ptr Parser::parse_value() {
-    Expression::ptr expr = parse_atom();
+    if (accept(TokenKind::ParenLeft)) {
+        Expression::ptr expr = parse_expression();
+        expect(TokenKind::ParenRight);
+        return expr;
+    }
 
-    return expr;
+    return parse_atom();
 }
 
 Expression::ptr Parser::parse_atom() {

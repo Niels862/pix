@@ -6,4 +6,13 @@ function fib(n: int) -> int {
     return fib(n - 1) + fib(n - 2);
 }
 
-iprint(fib(38));
+function sum(n: int) -> int {
+    if n < 0 {
+        return 0;
+    }
+
+    return n + sum(n - 1);
+}
+
+iprint(fib(5));
+iprint(sum(100));

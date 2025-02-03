@@ -1,5 +1,6 @@
 #include "code-generator.hpp"
 #include "ast.hpp"
+#include "parser.hpp"
 #include "error.hpp"
 #include <sstream>
 #include <iomanip>
@@ -128,9 +129,35 @@ Node &CodeGenerator::visit(WhileStatement &stmt) {
     stmt.condition()->accept(*this);
     emit(OpCode::JumpIfNot, label_end);
 
+    m_break_labels.push(label_end);
+    m_continue_labels.push(label_loop);
+
     stmt.loop_stmt()->accept(*this);
     emit(OpCode::Jump, label_loop);
     emit(label_end);
+
+    m_break_labels.pop();
+    m_continue_labels.pop();
+
+    return stmt;
+}
+
+Node &CodeGenerator::visit(BreakStatement &stmt) {
+    if (m_break_labels.empty()) {
+        throw ParserError(stmt.pos(), "No loop to break from");
+    }
+
+    emit(OpCode::Jump, m_break_labels.top());
+
+    return stmt;
+}
+
+Node &CodeGenerator::visit(ContinueStatement &stmt) {
+    if (m_continue_labels.empty()) {
+        throw ParserError(stmt.pos(), "No loop-condition to continue to");
+    }
+
+    emit(OpCode::Jump, m_continue_labels.top());
 
     return stmt;
 }

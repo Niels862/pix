@@ -17,6 +17,14 @@ function yes() -> bool {
 f(249, null());
 bprint(yes());
 
+while True {
+    iprint(15);
+    if True {
+        break;
+    }
+    iprint(29);
+}
+
 if False {
     iprint(5);
 } else if True {

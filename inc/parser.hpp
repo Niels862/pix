@@ -57,6 +57,10 @@ private:
 
     Statement::ptr parse_while_statement();
 
+    Statement::ptr parse_break_statement();
+
+    Statement::ptr parse_continue_statement();
+
     Expression::ptr parse_expression();
 
     Expression::ptr parse_value();

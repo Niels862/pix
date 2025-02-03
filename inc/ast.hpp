@@ -21,6 +21,8 @@ enum class NodeKind {
     ReturnStatement,
     IfElseStatement,
     WhileStatement,
+    BreakStatement,
+    ContinueStatement,
     Call,
     Variable,
     Integer,
@@ -316,6 +318,38 @@ private:
     Expression::ptr m_condition;
 
     Statement::ptr m_loop_stmt;
+};
+
+class BreakStatement : public Statement {
+public:
+    BreakStatement(Token const &token);
+
+    Node &accept(AstVisitor &visitor) override { return visitor.visit(*this); } 
+
+    NodeKind kind() const override { return NodeKind::BreakStatement; }
+
+    TextPosition const &pos() const override { return m_token.pos(); }
+
+private:
+    void add_json_attributes(JSONObject &) const {}
+
+    Token m_token;
+};
+
+class ContinueStatement : public Statement {
+public:
+    ContinueStatement(Token const &token);
+
+    Node &accept(AstVisitor &visitor) override { return visitor.visit(*this); } 
+
+    NodeKind kind() const override { return NodeKind::ContinueStatement; }
+
+    TextPosition const &pos() const override { return m_token.pos(); }
+
+private:
+    void add_json_attributes(JSONObject &) const {}
+
+    Token m_token;
 };
 
 class Call : public Expression {

@@ -27,6 +27,10 @@ public:
 
     Node &visit(WhileStatement &stmt) override;
 
+    Node &visit(BreakStatement &stmt) override;
+
+    Node &visit(ContinueStatement &stmt) override;
+
     Node &visit(Call &expr) override;
     
     Node &visit(Variable &expr) override;

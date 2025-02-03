@@ -7,6 +7,7 @@
 #include "symbol-table.hpp"
 #include <vector>
 #include <queue>
+#include <stack>
 #include <unordered_map>
 #include <iostream>
 #include <variant>
@@ -35,6 +36,10 @@ public:
 
     Node &visit(WhileStatement &stmt) override;
 
+    Node &visit(BreakStatement &stmt) override;
+
+    Node &visit(ContinueStatement &stmt) override;
+
     Node &visit(Call &expr) override;
     
     Node &visit(Variable &expr) override;
@@ -58,6 +63,10 @@ private:
     std::unordered_map<FunctionDefinition *, Label> m_func_labels;
 
     std::queue<FunctionDefinition *> m_jobs;
+
+    std::stack<Label> m_break_labels;
+
+    std::stack<Label> m_continue_labels;
 
     int m_fresh_id;
 

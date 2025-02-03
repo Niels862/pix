@@ -16,6 +16,8 @@ enum class TokenKind {
     If,
     Else,
     While,
+    Break,
+    Continue,
     True,
     False,
     Null,

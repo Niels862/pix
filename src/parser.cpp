@@ -89,6 +89,14 @@ Statement::ptr Parser::parse_statement() {
         return parse_scoped_body();
     }
 
+    if (matches(TokenKind::Break)) {
+        return parse_break_statement();
+    }
+
+    if (matches(TokenKind::Continue)) {
+        return parse_continue_statement();
+    }
+
     return parse_expression_statement();
 }
 
@@ -217,6 +225,18 @@ Statement::ptr Parser::parse_while_statement() {
 
     return std::make_unique<WhileStatement>(std::move(condition), 
                                             std::move(stmt));
+}
+
+Statement::ptr Parser::parse_break_statement() {
+    Token token = expect(TokenKind::Break);
+    expect(TokenKind::Semicolon);
+    return std::make_unique<BreakStatement>(token);
+}
+
+Statement::ptr Parser::parse_continue_statement() {
+    Token token = expect(TokenKind::Continue);
+    expect(TokenKind::Semicolon);
+    return std::make_unique<ContinueStatement>(token);
 }
 
 Expression::ptr Parser::parse_expression() {

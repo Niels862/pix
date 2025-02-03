@@ -15,6 +15,8 @@ std::string const &to_string(NodeKind kind) {
         { NodeKind::ReturnStatement, "return-statement" },
         { NodeKind::IfElseStatement, "if-else-statement" },
         { NodeKind::WhileStatement, "while-statement" },
+        { NodeKind::BreakStatement, "break-statement" },
+        { NodeKind::ContinueStatement, "continue-statement" },
         { NodeKind::Call, "call" },
         { NodeKind::Variable, "variable" },
         { NodeKind::Integer, "integer" },
@@ -176,6 +178,12 @@ void WhileStatement::add_json_attributes(JSONObject &object) const {
     object.add_key("condition", m_condition->to_json());
     object.add_key("loop-stmt", m_loop_stmt->to_json());
 }
+
+BreakStatement::BreakStatement(Token const &token)
+        : m_token{token} {}
+
+ContinueStatement::ContinueStatement(Token const &token)
+        : m_token{token} {}
 
 Call::Call(Token const &func, std::vector<Expression::ptr> args)
         : Expression{}, m_func{func}, m_args{std::move(args)}, 

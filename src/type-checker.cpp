@@ -89,6 +89,14 @@ Node &TypeChecker::visit(WhileStatement &stmt) {
     return stmt;
 }
 
+Node &TypeChecker::visit(BreakStatement &stmt) {
+    return stmt;
+}
+
+Node &TypeChecker::visit(ContinueStatement &stmt) {
+    return stmt;
+}
+
 Node &TypeChecker::visit(Call &expr) {
     for (Expression::ptr &expr : expr.args()) {
         expr->accept(*this);

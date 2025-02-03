@@ -27,6 +27,10 @@ class IfElseStatement;
 
 class WhileStatement;
 
+class BreakStatement;
+
+class ContinueStatement;
+
 class Call;
 
 class Variable;

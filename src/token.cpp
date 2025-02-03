@@ -13,6 +13,8 @@ std::unordered_map<TokenKind, std::string> const tokenkind_to_string_map = {
     { TokenKind::If, "if" },
     { TokenKind::Else, "else" },
     { TokenKind::While, "while" },
+    { TokenKind::Break, "break" },
+    { TokenKind::Continue, "continue" },
     { TokenKind::True, "True" },
     { TokenKind::False, "False" },
     { TokenKind::Null, "Null" },

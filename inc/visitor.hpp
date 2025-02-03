@@ -29,6 +29,10 @@ public:
 
     virtual Node &visit(WhileStatement &stmt);
 
+    virtual Node &visit(BreakStatement &stmt);
+
+    virtual Node &visit(ContinueStatement &stmt);
+
     virtual Node &visit(Call &expr);
 
     virtual Node &visit(Variable &expr);

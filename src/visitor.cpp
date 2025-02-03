@@ -41,6 +41,14 @@ Node &AstVisitor::visit(WhileStatement &stmt) {
     return default_action(stmt);
 }
 
+Node &AstVisitor::visit(BreakStatement &stmt) {
+    return default_action(stmt);
+}
+
+Node &AstVisitor::visit(ContinueStatement &stmt) {
+    return default_action(stmt);
+}
+
 Node &AstVisitor::visit(Call &expr) {
     return default_action(expr);
 }

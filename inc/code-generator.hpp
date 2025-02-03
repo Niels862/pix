@@ -25,9 +25,15 @@ public:
 
     Node &visit(FunctionDeclaration &decl) override;
 
+    Node &visit(ScopedBlockStatement &stmt) override;
+
     Node &visit(ExpressionStatement &stmt) override;
 
     Node &visit(ReturnStatement &stmt) override;
+
+    Node &visit(IfElseStatement &stmt) override;
+
+    Node &visit(WhileStatement &stmt) override;
 
     Node &visit(Call &expr) override;
     

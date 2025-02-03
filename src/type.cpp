@@ -8,13 +8,13 @@ Type::unowned_ptr Type::IntType() {
     return &type;
 }
 
-Type::unowned_ptr Type::VoidType() {
-    static NamedType type("void");
+Type::unowned_ptr Type::BoolType() {
+    static NamedType type("bool");
     return &type;
 }
 
-Type::unowned_ptr Type::BoolType() {
-    static NamedType type("bool");
+Type::unowned_ptr Type::VoidType() {
+    static NamedType type("void");
     return &type;
 }
 

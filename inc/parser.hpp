@@ -45,11 +45,17 @@ private:
 
     TypeAnnotation::ptr parse_type_annotation();
 
+    Statement::ptr parse_scoped_body();
+
     std::vector<Statement::ptr> parse_body();
 
     Statement::ptr parse_expression_statement();
 
     Statement::ptr parse_return_statement();
+
+    Statement::ptr parse_if_else_statement();
+
+    Statement::ptr parse_while_statement();
 
     Expression::ptr parse_expression();
 

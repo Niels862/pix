@@ -10,6 +10,9 @@ std::string const &to_string(OpCode instr) {
         { OpCode::ECall, "ecall" },
         { OpCode::Call, "call" },
         { OpCode::Ret, "ret" },
+        { OpCode::Jump, "jump" },
+        { OpCode::JumpIf, "jump-if" },
+        { OpCode::JumpIfNot, "jump-if-not" },
         { OpCode::Push, "push" },
         { OpCode::Pop, "pop"},
         { OpCode::LoadRel, "load-rel" },
@@ -37,6 +40,7 @@ std::string const &to_string(ECallFunction ecall) {
     static std::unordered_map<ECallFunction, std::string> const map = {
         { ECallFunction::None, "<none>" },
         { ECallFunction::PrintInt, "print-int" },
+        { ECallFunction::PrintBool, "print-bool" },
         { ECallFunction::Exit, "exit" }
     };
 

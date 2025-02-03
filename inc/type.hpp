@@ -17,9 +17,9 @@ public:
 
     static Type::unowned_ptr IntType();
     
-    static Type::unowned_ptr VoidType();
-
     static Type::unowned_ptr BoolType();
+
+    static Type::unowned_ptr VoidType();
 
     virtual JSONObject::ptr to_json() const = 0;
 

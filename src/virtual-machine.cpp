@@ -60,6 +60,22 @@ void VirtualMachine::execute_step() {
             m_memory.push_word(x);
             break;
 
+        case OpCode::Jump:
+            jump_to(data);
+            break;
+
+        case OpCode::JumpIf:
+            if (m_memory.pop_word() != 0) {
+                jump_to(data);
+            }
+            break;
+
+        case OpCode::JumpIfNot:
+            if (m_memory.pop_word() == 0) {
+                jump_to(data);
+            }
+            break;
+
         case OpCode::Push:
             m_memory.push_word(data);
             break;
@@ -101,6 +117,12 @@ void VirtualMachine::execute_ecall(ECallFunction ecall) {
 
         case ECallFunction::PrintInt:
             std::cout << ">> " << m_memory.pop_word() << std::endl;
+            m_memory.push_word(0);
+            break;
+
+        case ECallFunction::PrintBool:
+            std::cout << ">> " << (m_memory.pop_word() ? "True" : "False")
+                      << std::endl;
             m_memory.push_word(0);
             break;
 

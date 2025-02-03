@@ -40,6 +40,18 @@ Node &TypeChecker::visit(FunctionDeclaration &decl) {
     return decl;
 }
 
+Node &TypeChecker::visit(ScopedBlockStatement &stmt) {
+    m_scope.enter(stmt.symbols());
+    
+    for (Statement::ptr &substmt : stmt.body()) {
+        substmt->accept(*this);
+    }
+
+    m_scope.leave(stmt.symbols());
+
+    return stmt;
+}
+
 Node &TypeChecker::visit(ExpressionStatement &stmt) {
     stmt.expr()->accept(*this);
     return stmt;
@@ -53,6 +65,27 @@ Node &TypeChecker::visit(ReturnStatement &stmt) {
     coerce_types(stmt.value(), m_curr_function->definition().type()->ret_type(), 
                  stmt.pos(), ss.str());
                  
+    return stmt;
+}
+
+Node &TypeChecker::visit(IfElseStatement &stmt) {
+    stmt.condition()->accept(*this);
+    coerce_types(stmt.condition(), Type::BoolType(), stmt.condition()->pos(), 
+                 "In if-statement condition");
+
+    stmt.then_stmt()->accept(*this);
+    stmt.else_stmt()->accept(*this);
+
+    return stmt;
+}
+
+Node &TypeChecker::visit(WhileStatement &stmt) {
+    stmt.condition()->accept(*this);
+    coerce_types(stmt.condition(), Type::BoolType(), stmt.condition()->pos(),
+                 "In while-statement condition");
+
+    stmt.loop_stmt()->accept(*this);
+
     return stmt;
 }
 

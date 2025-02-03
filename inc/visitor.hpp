@@ -19,9 +19,15 @@ public:
 
     virtual Node &visit(NamedTypeAnnotation &anno);
 
+    virtual Node &visit(ScopedBlockStatement &stmt);
+
     virtual Node &visit(ExpressionStatement &stmt);
 
     virtual Node &visit(ReturnStatement &stmt);
+
+    virtual Node &visit(IfElseStatement &stmt);
+
+    virtual Node &visit(WhileStatement &stmt);
 
     virtual Node &visit(Call &expr);
 

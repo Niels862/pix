@@ -77,6 +77,18 @@ Statement::ptr Parser::parse_statement() {
         return parse_return_statement();
     }
 
+    if (matches(TokenKind::If)) {
+        return parse_if_else_statement();
+    }
+
+    if (matches(TokenKind::While)) {
+        return parse_while_statement();
+    }
+
+    if (matches(TokenKind::BraceLeft)) {
+        return parse_scoped_body();
+    }
+
     return parse_expression_statement();
 }
 
@@ -136,6 +148,10 @@ TypeAnnotation::ptr Parser::parse_type_annotation() {
     return std::make_unique<NamedTypeAnnotation>(ident);
 }
 
+Statement::ptr Parser::parse_scoped_body() {
+    return std::make_unique<ScopedBlockStatement>(parse_body());
+}
+
 std::vector<Statement::ptr> Parser::parse_body() {
     expect(TokenKind::BraceLeft);
 
@@ -166,6 +182,41 @@ Statement::ptr Parser::parse_return_statement() {
     expect(TokenKind::Semicolon);
 
     return std::make_unique<ReturnStatement>(std::move(value));
+}
+
+Statement::ptr Parser::parse_if_else_statement() {
+    expect(TokenKind::If);
+    
+    Expression::ptr condition = parse_expression();
+
+    Statement::ptr then_stmt = parse_scoped_body();
+
+    Statement::ptr else_stmt;
+    if (accept(TokenKind::Else)) {
+        if (matches(TokenKind::If)) {
+            else_stmt = parse_if_else_statement();
+        } else {
+            else_stmt = parse_scoped_body();
+        }
+    } else {
+        std::vector<Statement::ptr> empty;
+        else_stmt = std::make_unique<ScopedBlockStatement>(std::move(empty));
+    }
+
+    return std::make_unique<IfElseStatement>(std::move(condition), 
+                                             std::move(then_stmt), 
+                                             std::move(else_stmt));
+}
+
+Statement::ptr Parser::parse_while_statement() {
+    expect(TokenKind::While);
+
+    Expression::ptr condition = parse_expression();
+
+    Statement::ptr stmt = parse_scoped_body();
+
+    return std::make_unique<WhileStatement>(std::move(condition), 
+                                            std::move(stmt));
 }
 
 Expression::ptr Parser::parse_expression() {

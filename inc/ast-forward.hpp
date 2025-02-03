@@ -17,9 +17,15 @@ class FunctionDeclaration;
 
 class NamedTypeAnnotation;
 
+class ScopedBlockStatement;
+
 class ExpressionStatement;
 
 class ReturnStatement;
+
+class IfElseStatement;
+
+class WhileStatement;
 
 class Call;
 

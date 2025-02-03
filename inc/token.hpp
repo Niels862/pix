@@ -13,6 +13,9 @@ enum class TokenKind {
     
     Function,
     Return,
+    If,
+    Else,
+    While,
     True,
     False,
     Null,

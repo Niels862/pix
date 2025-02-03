@@ -13,12 +13,15 @@ enum class OpCode {
     ECall,
     Call,
     Ret,
+    Jump,
+    JumpIf,
+    JumpIfNot,
     Push,
     Pop,
     LoadRel,
     LoadAbs,
     StoreRel,
-    StoreAbs
+    StoreAbs,
 };
 
 std::string const &to_string(OpCode instr);
@@ -28,6 +31,7 @@ std::ostream &operator <<(std::ostream &stream, OpCode instr);
 enum class ECallFunction {
     None,
     PrintInt,
+    PrintBool,
     Exit
 };
 

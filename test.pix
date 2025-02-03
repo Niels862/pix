@@ -1,11 +1,11 @@
 function f(x: int, v: void) {
-    print(x);
+    iprint(x);
     g(89, x);
 }
 
 function g(x: int, y: int) {
-    print(x);
-    print(y);
+    iprint(x);
+    iprint(y);
 }
 
 function null() {}
@@ -15,3 +15,12 @@ function yes() -> bool {
 }
 
 f(249, null());
+bprint(yes());
+
+if False {
+    iprint(5);
+} else if True {
+
+} else {
+    iprint(7);
+} 

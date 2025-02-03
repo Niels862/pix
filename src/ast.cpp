@@ -10,8 +10,11 @@ std::string const &to_string(NodeKind kind) {
         { NodeKind::VariableDeclaration, "variable-declaration" },
         { NodeKind::FunctionDeclaration, "function-declaration" },
         { NodeKind::NamedTypeAnnotation, "named-type-annotation" },
+        { NodeKind::ScopedBlockStatement, "scoped-block-statement" },
         { NodeKind::ExpressionStatement, "expression-statement" },
         { NodeKind::ReturnStatement, "return-statement" },
+        { NodeKind::IfElseStatement, "if-else-statement" },
+        { NodeKind::WhileStatement, "while-statement" },
         { NodeKind::Call, "call" },
         { NodeKind::Variable, "variable" },
         { NodeKind::Integer, "integer" },
@@ -131,6 +134,13 @@ void NamedTypeAnnotation::add_json_attributes(JSONObject &object) const {
     object.add_key("identifier", JSONString::Create(m_ident.lexeme()));
 }
 
+ScopedBlockStatement::ScopedBlockStatement(std::vector<Statement::ptr> body)
+        : m_body{std::move(body)}, m_symbols{} {}
+
+void ScopedBlockStatement::add_json_attributes(JSONObject &object) const {
+    object.add_key("body", Node::to_json_list(m_body));
+}
+
 ExpressionStatement::ExpressionStatement(Expression::ptr expr)
         : Statement{}, m_expr{std::move(expr)} {}
 
@@ -143,6 +153,28 @@ ReturnStatement::ReturnStatement(Expression::ptr value)
 
 void ReturnStatement::add_json_attributes(JSONObject &object) const {
     object.add_key("value", m_value->to_json());
+}
+
+IfElseStatement::IfElseStatement(Expression::ptr condition, 
+                                 Statement::ptr then_stmt, 
+                                 Statement::ptr else_stmt)
+        : m_condition{std::move(condition)}, m_then_stmt{std::move(then_stmt)}, 
+          m_else_stmt{std::move(else_stmt)} {}
+
+void IfElseStatement::add_json_attributes(JSONObject &object) const {
+    object.add_key("condition", m_condition->to_json());
+    object.add_key("then-stmt", m_then_stmt->to_json());
+    object.add_key("else-stmt", m_else_stmt->to_json());
+}
+
+WhileStatement::WhileStatement(Expression::ptr condition, 
+                               Statement::ptr loop_stmt)
+        : m_condition{std::move(condition)}, 
+          m_loop_stmt{std::move(loop_stmt)} {}
+
+void WhileStatement::add_json_attributes(JSONObject &object) const {
+    object.add_key("condition", m_condition->to_json());
+    object.add_key("loop-stmt", m_loop_stmt->to_json());
 }
 
 Call::Call(Token const &func, std::vector<Expression::ptr> args)

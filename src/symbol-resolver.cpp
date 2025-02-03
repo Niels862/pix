@@ -11,31 +11,14 @@ SymbolResolver::SymbolResolver()
 Node &SymbolResolver::visit(Program &program) {
     m_scope.enter(program.symbols());
 
-    /* TEMP, TODO: std functions  */
+    declare_basic_function("iprint", Type::IntType(), Type::VoidType(), 
+                           ECallFunction::PrintInt);
+    declare_basic_function("bprint", Type::BoolType(), Type::VoidType(),
+                           ECallFunction::PrintBool);
 
-    std::vector<Type::unowned_ptr> params = { Type::IntType() };
-    Type::unowned_ptr ret_type = Type::VoidType();
-
-    FunctionType::ptr type = std::make_unique<FunctionType>(params, ret_type);
-
-    FunctionSymbol::ptr func = std::make_unique<FunctionSymbol>();
-    func->add_definition(std::move(type), ECallFunction::PrintInt);
-
-    m_scope.declare("print", std::move(func));
-
-    /* TEMP, TODO: basic types */
-
-    BasicTypeSymbol::ptr int_type = 
-            std::make_unique<BasicTypeSymbol>(Type::IntType());
-    m_scope.declare("int", std::move(int_type));
-
-    BasicTypeSymbol::ptr void_type = 
-            std::make_unique<BasicTypeSymbol>(Type::VoidType());
-    m_scope.declare("void", std::move(void_type));
-
-    BasicTypeSymbol::ptr bool_type =
-            std::make_unique<BasicTypeSymbol>(Type::BoolType());
-    m_scope.declare("bool", std::move(bool_type));
+    declare_basic_type("int", Type::IntType());
+    declare_basic_type("bool", Type::BoolType());
+    declare_basic_type("void", Type::VoidType());
 
     /*for (Statement::ptr &stmt : program.stmts()) {
         // TODO ... forward declare classes here
@@ -96,4 +79,36 @@ Node &SymbolResolver::visit(NamedTypeAnnotation &anno) {
 
     anno.set_type(type_symbol->type());
     return anno;
+}
+
+Node &SymbolResolver::visit(ScopedBlockStatement &stmt) {
+    m_scope.enter(stmt.symbols());
+
+    for (Statement::ptr &substmt : stmt.body()) {
+        substmt->accept(*this);
+    }
+
+    m_scope.leave(stmt.symbols());
+
+    return stmt;
+}
+
+void SymbolResolver::declare_basic_type(std::string const &name, 
+                                        Type::unowned_ptr type) {
+    BasicTypeSymbol::ptr symbol =
+            std::make_unique<BasicTypeSymbol>(type);
+    m_scope.declare(name, std::move(symbol));
+}
+
+void SymbolResolver::declare_basic_function(std::string const &name, 
+                                            Type::unowned_ptr param_type, 
+                                            Type::unowned_ptr ret_type, 
+                                            ECallFunction ecall) {
+    std::vector<Type::unowned_ptr> params = { param_type };
+    FunctionType::ptr type = std::make_unique<FunctionType>(params, ret_type);
+
+    FunctionSymbol::ptr func = std::make_unique<FunctionSymbol>();
+    func->add_definition(std::move(type), ecall);
+
+    m_scope.declare(name, std::move(func));
 }

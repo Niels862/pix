@@ -16,8 +16,11 @@ enum class NodeKind {
     VariableDeclaration,
     FunctionDeclaration,
     NamedTypeAnnotation,
+    ScopedBlockStatement,
     ExpressionStatement,
     ReturnStatement,
+    IfElseStatement,
+    WhileStatement,
     Call,
     Variable,
     Integer,
@@ -208,6 +211,28 @@ private:
     Token m_ident;
 };
 
+class ScopedBlockStatement : public Statement {
+public:
+    ScopedBlockStatement(std::vector<Statement::ptr> body);
+
+    Node &accept(AstVisitor &visitor) override { return visitor.visit(*this); } 
+
+    NodeKind kind() const override { return NodeKind::ScopedBlockStatement; }
+
+    TextPosition const &pos() const override { return m_body.front()->pos(); }
+
+    std::vector<Statement::ptr> &body() { return m_body; }
+
+    SymbolTable &symbols() { return m_symbols; }
+
+private:
+    void add_json_attributes(JSONObject &object) const;
+
+    std::vector<Statement::ptr> m_body;
+
+    SymbolTable m_symbols;
+};
+
 class ExpressionStatement : public Statement {
 public:
     ExpressionStatement(Expression::ptr expr);
@@ -242,6 +267,55 @@ private:
     void add_json_attributes(JSONObject &object) const;
 
     Expression::ptr m_value;
+};
+
+class IfElseStatement : public Statement {
+public:
+    IfElseStatement(Expression::ptr condition, Statement::ptr then_stmt, 
+                    Statement::ptr else_stmt);
+
+    Node &accept(AstVisitor &visitor) override { return visitor.visit(*this); } 
+
+    NodeKind kind() const override { return NodeKind::IfElseStatement; }
+
+    TextPosition const &pos() const override { return m_condition->pos(); }
+
+    Expression::ptr &condition() { return m_condition; }
+
+    Statement::ptr &then_stmt() { return m_then_stmt; }
+
+    Statement::ptr &else_stmt() { return m_else_stmt; }
+
+private:
+    void add_json_attributes(JSONObject &object) const;
+
+    Expression::ptr m_condition;
+
+    Statement::ptr m_then_stmt;
+
+    Statement::ptr m_else_stmt;
+};
+
+class WhileStatement : public Statement {
+public:
+    WhileStatement(Expression::ptr condition, Statement::ptr loop_stmt);
+
+    Node &accept(AstVisitor &visitor) override { return visitor.visit(*this); } 
+
+    NodeKind kind() const override { return NodeKind::WhileStatement; }
+
+    TextPosition const &pos() const override { return m_condition->pos(); }
+
+    Expression::ptr &condition() { return m_condition; }
+
+    Statement::ptr &loop_stmt() { return m_loop_stmt; }
+
+private:
+    void add_json_attributes(JSONObject &object) const;
+
+    Expression::ptr m_condition;
+
+    Statement::ptr m_loop_stmt;
 };
 
 class Call : public Expression {

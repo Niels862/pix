@@ -77,6 +77,18 @@ Node &CodeGenerator::visit(FunctionDeclaration &decl) {
     return decl;
 }
 
+Node &CodeGenerator::visit(ScopedBlockStatement &stmt) {
+    m_scope.enter(stmt.symbols());
+    
+    for (Statement::ptr &substmt : stmt.body()) {
+        substmt->accept(*this);
+    }
+
+    m_scope.leave(stmt.symbols());
+
+    return stmt;
+}
+
 Node &CodeGenerator::visit(ExpressionStatement &stmt) {
     stmt.expr()->accept(*this);
     emit(OpCode::Pop);
@@ -87,6 +99,38 @@ Node &CodeGenerator::visit(ExpressionStatement &stmt) {
 Node &CodeGenerator::visit(ReturnStatement &stmt) {
     stmt.value()->accept(*this);
     emit(OpCode::Ret);
+
+    return stmt;
+}
+
+Node &CodeGenerator::visit(IfElseStatement &stmt) {
+    Label label_else = fresh_label();
+    Label label_end = fresh_label();
+    
+    stmt.condition()->accept(*this);
+    emit(OpCode::JumpIfNot, label_else);
+
+    stmt.then_stmt()->accept(*this);
+    emit(OpCode::Jump, label_end);
+
+    emit(label_else);
+    stmt.else_stmt()->accept(*this);
+    emit(label_end);
+
+    return stmt;
+}
+
+Node &CodeGenerator::visit(WhileStatement &stmt) {
+    Label label_loop = fresh_label();
+    Label label_end = fresh_label();
+
+    emit(label_loop);
+    stmt.condition()->accept(*this);
+    emit(OpCode::JumpIfNot, label_end);
+
+    stmt.loop_stmt()->accept(*this);
+    emit(OpCode::Jump, label_loop);
+    emit(label_end);
 
     return stmt;
 }

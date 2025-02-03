@@ -29,6 +29,8 @@ std::vector<Token> Lexer::lex() {
             lex_identifier();
         } else if (is_digit()) {
             lex_integer();
+        } else if (is_operator()) {
+            lex_operator();
         } else if ((kind = separator_kind()) != TokenKind::None) {
             m_tokens.emplace_back(m_base_pos, kind);
             advance();
@@ -82,6 +84,19 @@ bool Lexer::is_digit() const {
     return std::isdigit(curr());
 }
 
+bool Lexer::is_operator() const {
+    char c = curr();
+
+    return c == '+' || c == '-' 
+        || c == '*' || c == '/'
+        || c == '%' || c == '^'
+        || c == '<' || c == '>'
+        || c == '=' || c == '!'
+        || c == '&' || c == '|'
+        || c == '?' || c == '~'
+        || c == '.';
+}
+
 bool Lexer::is_whitespace() const {
     static std::string const whitespace = " \n\r\t ";
     return whitespace.find(curr()) != std::string::npos; 
@@ -120,6 +135,20 @@ void Lexer::lex_integer() {
     m_tokens.emplace_back(m_base_pos, TokenKind::Integer, lexeme());
 }
 
+void Lexer::lex_operator() {
+    do {
+        advance();
+    } while (is_operator());
+
+    TokenKind op = from_string(lexeme());
+    if (op != TokenKind::None) {
+        m_tokens.emplace_back(m_base_pos, op);
+    } else {
+        std::stringstream ss;
+        ss << "Unrecognized operator: `" << lexeme() << "`";
+        throw LexerError(m_curr_pos, ss.str());
+    }
+}
 
 void Lexer::set_base() {
     m_base_offset = m_curr_offset;

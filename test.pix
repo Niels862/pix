@@ -1,9 +1,6 @@
-function f(x: int) {
+function f(x: int, v: void) {
     print(x);
-
     g(89, x);
-
-    return 133;
 }
 
 function g(x: int, y: int) {
@@ -11,4 +8,10 @@ function g(x: int, y: int) {
     print(y);
 }
 
-f(249);
+function null() {}
+
+function yes() -> bool {
+    return True;
+}
+
+f(249, null());

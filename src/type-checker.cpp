@@ -10,24 +10,14 @@ Node &TypeChecker::default_action(Node &node) {
     throw FatalError(ss.str());
 }
 
-Node &TypeChecker::visit(ExpressionStatement &stmt) {
-    stmt.expr().accept(*this);
-    return stmt;
-}
-
-Node &TypeChecker::visit(ReturnStatement &stmt) {
-    stmt.value().accept(*this);
-    return stmt;
-}
-
 Node &TypeChecker::visit(Program &program) {
     m_scope.enter(program.symbols());
-
-    std::cout << m_scope.current() << std::endl;
 
     for (Statement::ptr &stmt : program.stmts()) {
         stmt->accept(*this);
     }
+
+    m_scope.leave(program.symbols());
 
     return program;
 }
@@ -37,6 +27,7 @@ Node &TypeChecker::visit(VariableDeclaration &decl) {
 }
 
 Node &TypeChecker::visit(FunctionDeclaration &decl) {
+    m_curr_function = &decl;
     m_scope.enter(decl.symbols());
 
     for (Statement::ptr &stmt : decl.body()) {
@@ -44,8 +35,25 @@ Node &TypeChecker::visit(FunctionDeclaration &decl) {
     }
 
     m_scope.leave(decl.symbols());
+    m_curr_function = nullptr;
 
     return decl;
+}
+
+Node &TypeChecker::visit(ExpressionStatement &stmt) {
+    stmt.expr()->accept(*this);
+    return stmt;
+}
+
+Node &TypeChecker::visit(ReturnStatement &stmt) {
+    stmt.value()->accept(*this);
+
+    std::stringstream ss;
+    ss << "In return from `" << m_curr_function->func().lexeme() << "`";
+    coerce_types(stmt.value(), m_curr_function->definition().type()->ret_type(), 
+                 stmt.pos(), ss.str());
+                 
+    return stmt;
 }
 
 Node &TypeChecker::visit(Call &expr) {
@@ -60,12 +68,12 @@ Node &TypeChecker::visit(Call &expr) {
             dynamic_cast<FunctionSymbol *>(symbol);
 
     if (!func_symbol) {
-        throw ParserError(expr.func().pos(), name + " is not a function");
+        throw ParserError(expr.pos(), name + " is not a function");
     }
 
     std::vector<FunctionDefinition> &defs = func_symbol->definitions();
     if (defs.size() != 1) {
-        throw ParserError(expr.func().pos(), "overloads not implemented");
+        throw ParserError(expr.pos(), "overloads not implemented");
     }
 
     FunctionDefinition &def = defs.front();
@@ -75,12 +83,12 @@ Node &TypeChecker::visit(Call &expr) {
         std::stringstream ss;
         ss << expr.func().lexeme() << " got " << expr.args().size()
            << " arguments, but expected " << param_types.size();
-        throw ParserError(expr.func().pos(), ss.str());
+        throw ParserError(expr.pos(), ss.str());
     }
 
     for (std::size_t i = 0; i < expr.args().size(); i++) {
         coerce_types(expr.args()[i], param_types[i], 
-                     expr.func().pos(), "In call to " + expr.func().lexeme());
+                     expr.pos(), "In call to " + expr.func().lexeme());
     }
 
     expr.set_called(def);
@@ -95,8 +103,7 @@ Node &TypeChecker::visit(Variable &expr) {
             = dynamic_cast<VariableSymbol *>(symbol);
 
     if (!var_symbol) {
-        throw ParserError(
-                expr.ident().pos(), expr.ident() + " is not a variable");
+        throw ParserError(expr.pos(), expr.ident() + " is not a variable");
     }
 
     expr.set_type(var_symbol->type());
@@ -105,6 +112,11 @@ Node &TypeChecker::visit(Variable &expr) {
 
 Node &TypeChecker::visit(Integer &expr) { 
     expr.set_type(Type::IntType());
+    return expr;
+}
+
+Node &TypeChecker::visit(BooleanLiteral &expr) {
+    expr.set_type(Type::BoolType());
     return expr;
 }
 

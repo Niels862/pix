@@ -27,11 +27,15 @@ public:
 
     Node &visit(Integer &expr) override;
 
+    Node &visit(BooleanLiteral &expr) override;
+
 private:
     void coerce_types(Expression::ptr &target, Type::unowned_ptr expected, 
                       TextPosition const &pos, std::string const &context);
 
     SymbolScope m_scope;
+
+    FunctionDeclaration::unowned_ptr m_curr_function;
 };
 
 #endif

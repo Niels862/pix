@@ -40,3 +40,7 @@ Node &AstVisitor::visit(Variable &expr) {
 Node &AstVisitor::visit(Integer &expr) {
     return default_action(expr);
 }
+
+Node &AstVisitor::visit(BooleanLiteral &literal) {
+    return default_action(literal);
+}

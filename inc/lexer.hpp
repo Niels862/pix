@@ -34,6 +34,8 @@ private:
 
     bool is_digit() const;
 
+    bool is_operator() const;
+
     bool is_whitespace() const;
 
     bool is_comment() const;
@@ -45,6 +47,8 @@ private:
     void lex_identifier();
 
     void lex_integer();
+
+    void lex_operator();
 
     void set_base();
 

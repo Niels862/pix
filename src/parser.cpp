@@ -87,9 +87,18 @@ FunctionDeclaration::ptr Parser::parse_function_declaration() {
 
     std::vector<VariableDeclaration::ptr> params = parse_function_parameters();
 
+    TypeAnnotation::ptr ret_type_annotation;
+    if (accept(TokenKind::Arrow)) {
+        ret_type_annotation = parse_type_annotation();
+    } else {
+        Token token(curr().pos(), TokenKind::Identifier, "void");
+        ret_type_annotation = std::make_unique<NamedTypeAnnotation>(token);
+    }
+    
     std::vector<Statement::ptr> stmts = parse_body();
 
     return std::make_unique<FunctionDeclaration>(func, std::move(params), 
+                                                 std::move(ret_type_annotation),
                                                  std::move(stmts));
 }
 
@@ -182,6 +191,10 @@ Expression::ptr Parser::parse_atom() {
         }
 
         return std::make_unique<Variable>(token);
+    }
+
+    if (accept(TokenKind::True) || accept(TokenKind::False)) {
+        return std::make_unique<BooleanLiteral>(token);
     }
 
     std::stringstream ss;

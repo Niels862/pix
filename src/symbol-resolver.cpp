@@ -33,6 +33,10 @@ Node &SymbolResolver::visit(Program &program) {
             std::make_unique<BasicTypeSymbol>(Type::VoidType());
     m_scope.declare("void", std::move(void_type));
 
+    BasicTypeSymbol::ptr bool_type =
+            std::make_unique<BasicTypeSymbol>(Type::BoolType());
+    m_scope.declare("bool", std::move(bool_type));
+
     /*for (Statement::ptr &stmt : program.stmts()) {
         // TODO ... forward declare classes here
     }*/
@@ -46,10 +50,10 @@ Node &SymbolResolver::visit(Program &program) {
 }
 
 Node &SymbolResolver::visit(VariableDeclaration &decl) {
-    decl.annotation().accept(*this);
+    decl.annotation()->accept(*this);
 
     LocalVariableSymbol::ptr var 
-            = std::make_unique<LocalVariableSymbol>(decl.annotation().type());
+            = std::make_unique<LocalVariableSymbol>(decl.annotation()->type());
     m_scope.declare(decl.ident(), std::move(var));
     
     return decl;
@@ -58,18 +62,20 @@ Node &SymbolResolver::visit(VariableDeclaration &decl) {
 Node &SymbolResolver::visit(FunctionDeclaration &decl) {
     m_scope.enter(decl.symbols());
 
-    std::vector<Type::unowned_ptr> params;
-    Type::unowned_ptr ret_type = Type::VoidType();
+    decl.ret_type_annotation()->accept(*this);
+    Type::unowned_ptr ret_type = decl.ret_type_annotation()->type();
 
+    std::vector<Type::unowned_ptr> params;
     for (VariableDeclaration::ptr &param : decl.params()) {
         param->accept(*this);
-        params.push_back(param->annotation().type());
+        params.push_back(param->annotation()->type());
     }
 
     FunctionType::ptr type = std::make_unique<FunctionType>(params, ret_type);
 
     FunctionSymbol::ptr func = std::make_unique<FunctionSymbol>();
     func->add_definition(std::move(type), &decl);
+    decl.set_definition(func->definitions().back());
 
     m_scope.leave(decl.symbols());
 
@@ -84,7 +90,7 @@ Node &SymbolResolver::visit(NamedTypeAnnotation &anno) {
             dynamic_cast<TypeSymbol *>(symbol);
 
     if (!type_symbol) {
-        throw ParserError(anno.ident().pos(), 
+        throw ParserError(anno.pos(), 
                           anno.ident().lexeme() + " is not a type");
     }
 

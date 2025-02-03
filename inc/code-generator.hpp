@@ -35,6 +35,8 @@ public:
 
     Node &visit(Integer &expr) override;
 
+    Node &visit(BooleanLiteral &expr) override;
+
     Label fresh_label();
 
     void emit(OpCode opcode);

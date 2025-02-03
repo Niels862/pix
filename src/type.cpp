@@ -13,6 +13,11 @@ Type::unowned_ptr Type::VoidType() {
     return &type;
 }
 
+Type::unowned_ptr Type::BoolType() {
+    static NamedType type("bool");
+    return &type;
+}
+
 std::ostream &operator <<(std::ostream &stream, Type const &type) {
     type.write(stream);
     return stream;

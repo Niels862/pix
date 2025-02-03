@@ -13,6 +13,11 @@ enum class TokenKind {
     
     Function,
     Return,
+    True,
+    False,
+    Null,
+
+    Arrow,
 
     ParenLeft,
     ParenRight,
@@ -51,7 +56,8 @@ public:
 
     TokenKind kind() const { return m_kind; }
 
-    std::string const &lexeme() const { return m_lexeme; }
+    std::string const &lexeme() const 
+            { return m_lexeme.empty() ? to_string(m_kind) : m_lexeme; }
 private:
     TextPosition m_pos;
 

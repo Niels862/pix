@@ -14,7 +14,8 @@ std::string const &to_string(NodeKind kind) {
         { NodeKind::ReturnStatement, "return-statement" },
         { NodeKind::Call, "call" },
         { NodeKind::Variable, "variable" },
-        { NodeKind::Integer, "integer" }
+        { NodeKind::Integer, "integer" },
+        { NodeKind::BooleanLiteral, "boolean-literal" }
     };
 
     auto const &it = map.find(kind);
@@ -111,8 +112,11 @@ void VariableDeclaration::add_json_attributes(JSONObject &object) const {
 
 FunctionDeclaration::FunctionDeclaration(Token const &func, 
                                          std::vector<VariableDeclaration::ptr> params, 
+                                         TypeAnnotation::ptr ret_type_annotation,
                                          std::vector<Statement::ptr> body)
-        : m_func{func}, m_params{std::move(params)}, m_body{std::move(body)} {}
+        : m_func{func}, m_params{std::move(params)}, 
+          m_ret_type_annotation{std::move(ret_type_annotation)}, 
+          m_body{std::move(body)} {}
 
 void FunctionDeclaration::add_json_attributes(JSONObject &object) const {
     object.add_key("function", JSONString::Create(m_func.lexeme()));
@@ -163,4 +167,11 @@ Integer::Integer(Token const &literal)
 void Integer::add_json_attributes(JSONObject &object) const {
     int value = std::stoi(m_literal.lexeme());
     object.add_key("value", JSONInteger::Create(value));
+}
+
+BooleanLiteral::BooleanLiteral(Token const &literal)
+        : Expression{}, m_literal{literal} {}
+
+void BooleanLiteral::add_json_attributes(JSONObject &object) const {
+    object.add_key("value", JSONString::Create(m_literal.lexeme()));
 }

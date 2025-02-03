@@ -28,6 +28,8 @@ public:
     virtual Node &visit(Variable &expr);
 
     virtual Node &visit(Integer &expr);
+
+    virtual Node &visit(BooleanLiteral &literal);
 };
 
 #endif

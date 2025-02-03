@@ -19,6 +19,8 @@ public:
     
     static Type::unowned_ptr VoidType();
 
+    static Type::unowned_ptr BoolType();
+
     virtual JSONObject::ptr to_json() const = 0;
 
     virtual void write(std::ostream &stream) const = 0;

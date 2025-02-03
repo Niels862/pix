@@ -78,14 +78,14 @@ Node &CodeGenerator::visit(FunctionDeclaration &decl) {
 }
 
 Node &CodeGenerator::visit(ExpressionStatement &stmt) {
-    stmt.expr().accept(*this);
+    stmt.expr()->accept(*this);
     emit(OpCode::Pop);
     
     return stmt;
 }
 
 Node &CodeGenerator::visit(ReturnStatement &stmt) {
-    stmt.value().accept(*this);
+    stmt.value()->accept(*this);
     emit(OpCode::Ret);
 
     return stmt;
@@ -135,6 +135,11 @@ Node &CodeGenerator::visit(Variable &expr) {
 
 Node &CodeGenerator::visit(Integer &expr) {
     emit(OpCode::Push, std::stoi(expr.literal().lexeme()));
+    return expr;
+}
+
+Node &CodeGenerator::visit(BooleanLiteral &expr) {
+    emit(OpCode::Push, expr.literal().lexeme() == "True" ? 1 : 0);
     return expr;
 }
 

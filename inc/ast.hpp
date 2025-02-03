@@ -20,7 +20,8 @@ enum class NodeKind {
     ReturnStatement,
     Call,
     Variable,
-    Integer
+    Integer,
+    BooleanLiteral
 };
 
 std::string const &to_string(NodeKind kind);
@@ -39,7 +40,10 @@ public:
 
     virtual NodeKind kind() const = 0;
 
+    virtual TextPosition const &pos() const = 0;
+
     using ptr = std::unique_ptr<Node>;
+    using unowned_ptr = Node *;
 
     Type::unowned_ptr &type() { return m_type; }
 
@@ -59,6 +63,7 @@ public:
     JSON::ptr to_json() const override;
 
     using ptr = std::unique_ptr<Statement>;
+    using unowned_ptr = Statement *;
 
 private:
     virtual void add_json_attributes(JSONObject &object) const = 0;
@@ -71,6 +76,7 @@ public:
     JSON::ptr to_json() const override;
 
     using ptr = std::unique_ptr<Expression>;
+    using unowned_ptr = Expression *;
 
 private:
     virtual void add_json_attributes(JSONObject &object) const = 0;
@@ -83,6 +89,7 @@ public:
     JSON::ptr to_json() const override;
 
     using ptr = std::unique_ptr<TypeAnnotation>;
+    using unowned_ptr = TypeAnnotation *;
 
 private:
     virtual void add_json_attributes(JSONObject &object) const = 0;
@@ -92,9 +99,11 @@ class Program : public Node {
 public:
     Program(std::vector<Statement::ptr> stmts);
 
-    Node &accept(AstVisitor &visitor) { return visitor.visit(*this); }
+    Node &accept(AstVisitor &visitor) override { return visitor.visit(*this); }
 
-    virtual NodeKind kind() const { return NodeKind::Program; }
+    NodeKind kind() const override { return NodeKind::Program; }
+
+    TextPosition const &pos() const override { return m_stmts.front()->pos(); }
 
     JSON::ptr to_json() const override;
 
@@ -114,13 +123,15 @@ class VariableDeclaration : public Statement {
 public:
     VariableDeclaration(Token const &ident, TypeAnnotation::ptr type);
 
-    Node &accept(AstVisitor &visitor) { return visitor.visit(*this); } 
+    Node &accept(AstVisitor &visitor) override { return visitor.visit(*this); } 
 
-    virtual NodeKind kind() const { return NodeKind::VariableDeclaration; }
+    NodeKind kind() const override { return NodeKind::VariableDeclaration; }
+
+    TextPosition const &pos() const override { return m_ident.pos(); }
 
     Token const &ident() const { return m_ident; }
 
-    TypeAnnotation &annotation() { return *m_annotation; }
+    TypeAnnotation::ptr &annotation() { return m_annotation; }
 
     using ptr = std::unique_ptr<VariableDeclaration>;
 
@@ -136,23 +147,32 @@ class FunctionDeclaration : public Statement {
 public:
     FunctionDeclaration(Token const &func, 
                         std::vector<VariableDeclaration::ptr> params, 
+                        TypeAnnotation::ptr ret_type_annotation,
                         std::vector<Statement::ptr> body);
 
-    Node &accept(AstVisitor &visitor) { return visitor.visit(*this); } 
+    Node &accept(AstVisitor &visitor) override { return visitor.visit(*this); } 
 
-    virtual NodeKind kind() const { return NodeKind::FunctionDeclaration; }
+    NodeKind kind() const override { return NodeKind::FunctionDeclaration; }
+
+    TextPosition const &pos() const override { return m_func.pos(); }
 
     Token const &func() const { return m_func; }
 
     std::vector<VariableDeclaration::ptr> &params() { return m_params; }
 
+    TypeAnnotation::ptr &ret_type_annotation() { return m_ret_type_annotation; }
+
     std::vector<Statement::ptr> &body() { return m_body; }
 
     SymbolTable &symbols() { return m_symbols; }
 
-    using unowned_ptr = FunctionDeclaration *;
+    FunctionDefinition &definition() { return *m_definition; }
+
+    void set_definition(FunctionDefinition &definition) 
+            { m_definition = &definition; }
 
     using ptr = std::unique_ptr<FunctionDeclaration>;
+    using unowned_ptr = FunctionDeclaration *;
 
 private:
     void add_json_attributes(JSONObject &object) const;
@@ -161,18 +181,24 @@ private:
 
     std::vector<VariableDeclaration::ptr> m_params;
 
+    TypeAnnotation::ptr m_ret_type_annotation;
+
     std::vector<Statement::ptr> m_body;
 
     SymbolTable m_symbols;
+
+    FunctionDefinition::unowned_ptr m_definition;
 };
 
 class NamedTypeAnnotation : public TypeAnnotation {
 public:
     NamedTypeAnnotation(Token const &ident);
 
-    Node &accept(AstVisitor &visitor) { return visitor.visit(*this); } 
+    Node &accept(AstVisitor &visitor) override { return visitor.visit(*this); } 
 
-    NodeKind kind() const { return NodeKind::NamedTypeAnnotation; }
+    NodeKind kind() const override { return NodeKind::NamedTypeAnnotation; }
+
+    TextPosition const &pos() const override { return m_ident.pos(); }
 
     Token const &ident() const { return m_ident; }
 
@@ -186,11 +212,13 @@ class ExpressionStatement : public Statement {
 public:
     ExpressionStatement(Expression::ptr expr);
 
-    Node &accept(AstVisitor &visitor) { return visitor.visit(*this); } 
+    Node &accept(AstVisitor &visitor) override { return visitor.visit(*this); } 
 
-    NodeKind kind() const { return NodeKind::ExpressionStatement; }
+    NodeKind kind() const override { return NodeKind::ExpressionStatement; }
 
-    Expression &expr() { return *m_expr; }
+    TextPosition const &pos() const override { return m_expr->pos(); }
+
+    Expression::ptr &expr() { return m_expr; }
     
 private:
     void add_json_attributes(JSONObject &object) const;
@@ -202,11 +230,13 @@ class ReturnStatement : public Statement {
 public:
     ReturnStatement(Expression::ptr value);
 
-    Node &accept(AstVisitor &visitor) { return visitor.visit(*this); } 
+    Node &accept(AstVisitor &visitor) override { return visitor.visit(*this); } 
 
-    NodeKind kind() const { return NodeKind::ReturnStatement; }
+    NodeKind kind() const override { return NodeKind::ReturnStatement; }
 
-    Expression &value() { return *m_value; }
+    TextPosition const &pos() const override { return m_value->pos(); } // todo
+
+    Expression::ptr &value() { return m_value; }
     
 private:
     void add_json_attributes(JSONObject &object) const;
@@ -218,9 +248,11 @@ class Call : public Expression {
 public:
     Call(Token const &func, std::vector<Expression::ptr> args);
 
-    Node &accept(AstVisitor &visitor) { return visitor.visit(*this); } 
+    Node &accept(AstVisitor &visitor) override { return visitor.visit(*this); } 
 
-    virtual NodeKind kind() const { return NodeKind::Call; }
+    NodeKind kind() const override { return NodeKind::Call; }
+
+    TextPosition const &pos() const override { return m_func.pos(); }
 
     Token const &func() { return m_func; }
 
@@ -244,9 +276,11 @@ class Variable : public Expression {
 public:
     Variable(Token const &ident);
 
-    Node &accept(AstVisitor &visitor) { return visitor.visit(*this); } 
+    Node &accept(AstVisitor &visitor) override { return visitor.visit(*this); } 
 
-    virtual NodeKind kind() const { return NodeKind::Variable; }
+    NodeKind kind() const override { return NodeKind::Variable; }
+
+    TextPosition const &pos() const override { return m_ident.pos(); }
 
     Token const &ident() const { return m_ident; }
 
@@ -260,9 +294,11 @@ class Integer : public Expression {
 public:
     Integer(Token const &literal);
 
-    Node &accept(AstVisitor &visitor) { return visitor.visit(*this); } 
+    Node &accept(AstVisitor &visitor) override { return visitor.visit(*this); } 
 
-    virtual NodeKind kind() const { return NodeKind::Integer; }
+    NodeKind kind() const override { return NodeKind::Integer; }
+
+    TextPosition const &pos() const override { return m_literal.pos(); }
 
     Token const &literal() const { return m_literal; }
 
@@ -270,6 +306,25 @@ private:
     void add_json_attributes(JSONObject &object) const;
 
     Token m_literal;
+};
+
+class BooleanLiteral : public Expression {
+public:
+    BooleanLiteral(Token const &literal);
+
+    Node &accept(AstVisitor &visitor) override { return visitor.visit(*this); } 
+
+    NodeKind kind() const override { return NodeKind::BooleanLiteral; }
+
+    TextPosition const &pos() const override { return m_literal.pos(); }
+
+    Token const &literal() const { return m_literal; }
+
+private:
+    void add_json_attributes(JSONObject &object) const;
+
+    Token m_literal;
+
 };
 
 #endif

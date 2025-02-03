@@ -27,4 +27,6 @@ class Variable;
 
 class Integer;
 
+class BooleanLiteral;
+
 #endif

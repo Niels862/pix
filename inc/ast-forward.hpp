@@ -31,6 +31,10 @@ class BreakStatement;
 
 class ContinueStatement;
 
+class UnaryExpression;
+
+class BinaryExpression;
+
 class Call;
 
 class Variable;

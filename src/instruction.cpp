@@ -18,7 +18,17 @@ std::string const &to_string(OpCode instr) {
         { OpCode::LoadRel, "load-rel" },
         { OpCode::LoadAbs, "load-abs" },
         { OpCode::StoreRel, "store-rel" },
-        { OpCode::StoreAbs, "store-abs" }
+        { OpCode::StoreAbs, "store-abs" },
+        { OpCode::IAdd, "iadd" },
+        { OpCode::ISub, "isub" },
+        { OpCode::IDiv, "idiv" },
+        { OpCode::IMod, "imod" },
+        { OpCode::ILT, "ilt" },
+        { OpCode::ILE, "ile" },
+        { OpCode::IGT, "igt" },
+        { OpCode::IGE, "ige" },
+        { OpCode::Equ, "equ" },
+        { OpCode::Neq, "neq" }
     };
 
     auto const &it = map.find(instr);

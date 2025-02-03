@@ -23,6 +23,8 @@ enum class NodeKind {
     WhileStatement,
     BreakStatement,
     ContinueStatement,
+    UnaryExpression,
+    BinaryExpression,
     Call,
     Variable,
     Integer,
@@ -350,6 +352,55 @@ private:
     void add_json_attributes(JSONObject &) const {}
 
     Token m_token;
+};
+
+class UnaryExpression : public Expression {
+public:
+    UnaryExpression(Token const &op, Expression::ptr operand);
+
+    Node &accept(AstVisitor &visitor) override { return visitor.visit(*this); }
+
+    NodeKind kind() const override { return NodeKind::UnaryExpression; }
+
+    TextPosition const &pos() const override { return m_operand->pos(); }
+
+    Token const &op() const { return m_op; }
+
+    Expression::ptr &operand() { return m_operand; }
+
+private:    
+    void add_json_attributes(JSONObject &object) const;
+
+    Token m_op;
+
+    Expression::ptr m_operand;
+};
+
+class BinaryExpression : public Expression {
+public:
+    BinaryExpression(Token const &op, Expression::ptr left, 
+                     Expression::ptr right);
+
+    Node &accept(AstVisitor &visitor) override { return visitor.visit(*this); }
+
+    NodeKind kind() const override { return NodeKind::BinaryExpression; }
+
+    TextPosition const &pos() const override { return m_left->pos(); }
+
+    Token const &op() const { return m_op; }
+
+    Expression::ptr &left() { return m_left; }
+
+    Expression::ptr &right() { return m_right; }
+
+private:
+    void add_json_attributes(JSONObject &object) const;
+
+    Token m_op;
+
+    Expression::ptr m_left;
+
+    Expression::ptr m_right;
 };
 
 class Call : public Expression {

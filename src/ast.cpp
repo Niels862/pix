@@ -17,6 +17,8 @@ std::string const &to_string(NodeKind kind) {
         { NodeKind::WhileStatement, "while-statement" },
         { NodeKind::BreakStatement, "break-statement" },
         { NodeKind::ContinueStatement, "continue-statement" },
+        { NodeKind::UnaryExpression, "unary-expression" },
+        { NodeKind::BinaryExpression, "binary-expression" },
         { NodeKind::Call, "call" },
         { NodeKind::Variable, "variable" },
         { NodeKind::Integer, "integer" },
@@ -184,6 +186,24 @@ BreakStatement::BreakStatement(Token const &token)
 
 ContinueStatement::ContinueStatement(Token const &token)
         : m_token{token} {}
+
+UnaryExpression::UnaryExpression(Token const &op, Expression::ptr operand)
+        : m_op{op}, m_operand{std::move(operand)} {}
+
+void UnaryExpression::add_json_attributes(JSONObject &object) const {
+    object.add_key("operator", JSONString::Create(m_op.lexeme()));
+    object.add_key("operand", m_operand->to_json());
+}
+
+BinaryExpression::BinaryExpression(Token const &op, Expression::ptr left, 
+                                   Expression::ptr right)
+        : m_op{op}, m_left{std::move(left)}, m_right{std::move(right)} {}
+
+void BinaryExpression::add_json_attributes(JSONObject &object) const {
+    object.add_key("operator", JSONString::Create(m_op.lexeme()));
+    object.add_key("left", m_left->to_json());
+    object.add_key("right", m_right->to_json());
+}
 
 Call::Call(Token const &func, std::vector<Expression::ptr> args)
         : Expression{}, m_func{func}, m_args{std::move(args)}, 

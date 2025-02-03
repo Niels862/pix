@@ -31,6 +31,10 @@ public:
 
     Node &visit(ContinueStatement &stmt) override;
 
+    Node &visit(UnaryExpression &expr) override;
+
+    Node &visit(BinaryExpression &expr) override;
+
     Node &visit(Call &expr) override;
     
     Node &visit(Variable &expr) override;

@@ -49,6 +49,14 @@ Node &AstVisitor::visit(ContinueStatement &stmt) {
     return default_action(stmt);
 }
 
+Node &AstVisitor::visit(UnaryExpression &expr) {
+    return default_action(expr);
+}
+
+Node &AstVisitor::visit(BinaryExpression &expr) {
+    return default_action(expr);
+}
+
 Node &AstVisitor::visit(Call &expr) {
     return default_action(expr);
 }

@@ -6,7 +6,8 @@
 #include <iomanip>
 
 CodeGenerator::CodeGenerator()
-        : m_data{}, m_func_labels{}, m_jobs{}, m_fresh_id{1}, m_scope{} {}
+        : m_data{}, m_func_labels{}, m_jobs{}, m_curr_job{nullptr}, 
+          m_fresh_id{1}, m_scope{} {}
 
 std::vector<CodeGenerator::entry_type> CodeGenerator::generate(Program &ast) {
     m_data.clear();
@@ -26,12 +27,13 @@ std::vector<CodeGenerator::entry_type> CodeGenerator::generate(Program &ast) {
     
     while (!m_jobs.empty()) {
         FunctionDefinition &def = *m_jobs.front();
-        
+        m_curr_job = &def;
+
         emit(m_func_labels.find(&def)->second);
         def.decl()->accept(*this);
 
-        emit(OpCode::Push, 0);
-        emit(OpCode::Ret);
+        emit(OpCode::Push);
+        emit(OpCode::Ret, m_curr_job->type()->param_types().size());
 
         m_jobs.pop();
     }
@@ -99,7 +101,7 @@ Node &CodeGenerator::visit(ExpressionStatement &stmt) {
 
 Node &CodeGenerator::visit(ReturnStatement &stmt) {
     stmt.value()->accept(*this);
-    emit(OpCode::Ret);
+    emit(OpCode::Ret, m_curr_job->type()->param_types().size());
 
     return stmt;
 }
@@ -160,6 +162,66 @@ Node &CodeGenerator::visit(ContinueStatement &stmt) {
     emit(OpCode::Jump, m_continue_labels.top());
 
     return stmt;
+}
+
+Node &CodeGenerator::visit(UnaryExpression &expr) {
+    return expr;
+}
+
+Node &CodeGenerator::visit(BinaryExpression &expr) {
+    expr.left()->accept(*this);
+    expr.right()->accept(*this);
+
+    switch (expr.op().kind()) {
+        case TokenKind::Plus:
+            emit(OpCode::IAdd);
+            break;
+
+        case TokenKind::Minus:
+            emit(OpCode::ISub);
+            break;
+
+        case TokenKind::Times:
+            emit(OpCode::IMul);
+            break;
+
+        case TokenKind::FloorDiv:
+            emit(OpCode::IDiv);
+            break;
+
+        case TokenKind::Modulo:
+            emit(OpCode::IMod);
+            break;
+
+        case TokenKind::DoubleEquals:
+            emit(OpCode::Equ);
+            break;
+
+        case TokenKind::NotEquals:
+            emit(OpCode::Neq);
+            break;
+
+        case TokenKind::LessThan:
+            emit(OpCode::ILT);
+            break;
+
+        case TokenKind::LessEquals:
+            emit(OpCode::ILE);
+            break;
+
+        case TokenKind::GreaterThan:
+            emit(OpCode::IGT);
+            break;
+
+        case TokenKind::GreaterEquals:
+            emit(OpCode::IGE);
+            break;
+
+        default:
+            throw FatalError("Unhandled operation: " + expr.op().lexeme());
+    }
+
+    return expr;
 }
 
 Node &CodeGenerator::visit(Call &expr) {

@@ -35,6 +35,10 @@ void Memory::push_word(uint32_t word) {
     set_word(word, m_top);
 }
 
+void Memory::pop_n_words(std::size_t n) {
+    m_top += 4 * n;
+}
+
 void Memory::set_top(std::size_t top) {
     m_top = top;
 }

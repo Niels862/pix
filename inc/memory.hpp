@@ -15,6 +15,8 @@ public:
 
     void push_word(uint32_t word);
 
+    void pop_n_words(std::size_t n);
+
     void set_top(std::size_t base);
 
     char const *raw() const { return m_mem.get(); }

@@ -10,18 +10,32 @@
 
 enum class OpCode {
     Nop,
+
     ECall,
     Call,
     Ret,
     Jump,
     JumpIf,
     JumpIfNot,
+
     Push,
     Pop,
     LoadRel,
     LoadAbs,
     StoreRel,
     StoreAbs,
+
+    IAdd,
+    ISub,
+    IMul,
+    IDiv,
+    IMod,
+    ILT,
+    ILE,
+    IGT,
+    IGE,
+    Equ,
+    Neq
 };
 
 std::string const &to_string(OpCode instr);

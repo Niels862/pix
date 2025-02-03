@@ -1,34 +1,9 @@
-function f(x: int, v: void) {
-    iprint(x);
-    g(89, x);
-}
-
-function g(x: int, y: int) {
-    iprint(x);
-    iprint(y);
-}
-
-function null() {}
-
-function yes() -> bool {
-    return True;
-}
-
-f(249, null());
-bprint(yes());
-
-while True {
-    iprint(15);
-    if True {
-        break;
+function fib(n: int) -> int {
+    if n <= 2 {
+        return 1;
     }
-    iprint(29);
+
+    return fib(n - 1) + fib(n - 2);
 }
 
-if False {
-    iprint(5);
-} else if True {
-
-} else {
-    iprint(7);
-} 
+iprint(fib(38));

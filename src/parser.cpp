@@ -240,7 +240,62 @@ Statement::ptr Parser::parse_continue_statement() {
 }
 
 Expression::ptr Parser::parse_expression() {
-    return parse_value();
+    return parse_equality_1();
+}
+
+Expression::ptr Parser::parse_equality_1() {
+    Expression::ptr left = parse_equality_2();
+
+    Token const &token = curr();
+    if (accept(TokenKind::DoubleEquals) 
+            || accept(TokenKind::NotEquals)) {
+        return std::make_unique<BinaryExpression>(token, std::move(left), 
+                                                  parse_equality_2());
+    }
+
+    return left;
+}
+
+Expression::ptr Parser::parse_equality_2() {
+    Expression::ptr left = parse_sum();
+
+    Token const &token = curr();
+    if (accept(TokenKind::LessThan) 
+            || accept(TokenKind::LessEquals)
+            || accept(TokenKind::GreaterThan) 
+            || accept(TokenKind::GreaterEquals)) {
+        return std::make_unique<BinaryExpression>(token, std::move(left), 
+                                                  parse_sum());
+    }
+
+    return left;
+}
+
+Expression::ptr Parser::parse_sum() {
+    Expression::ptr left = parse_term();
+
+    Token token = curr();
+    while (accept(TokenKind::Plus)
+            || accept(TokenKind::Minus)) {
+        left = std::make_unique<BinaryExpression>(token, std::move(left), 
+                                                  parse_term());
+    }
+
+    return left;
+}
+
+Expression::ptr Parser::parse_term() {
+    Expression::ptr left = parse_value();
+
+    Token token = curr();
+    while (accept(TokenKind::Times)
+            || accept(TokenKind::FloorDiv)
+            || accept(TokenKind::Modulo)) {
+        left = std::make_unique<BinaryExpression>(token, std::move(left), 
+                                                  parse_value());
+    }
+
+    return left;
 }
 
 Expression::ptr Parser::parse_value() {

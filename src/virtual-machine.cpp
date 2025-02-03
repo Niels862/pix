@@ -28,9 +28,10 @@ void VirtualMachine::execute_step() {
     OpCode opcode = Instruction::unpack_opcode(assembled);
     uint32_t data = Instruction::unpack_data(assembled);
 
-    uint32_t x, addr;
+    uint32_t x, y, addr;
+    int32_t sx = x, sy = y;
 
-    std::cout << Instruction::Disassemble(assembled) << std::endl;
+    //std::cout << Instruction::Disassemble(assembled) << std::endl;
 
     switch (opcode) {
         case OpCode::Nop:
@@ -57,6 +58,7 @@ void VirtualMachine::execute_step() {
             jump_to_address(m_memory.pop_word());
             m_base = m_memory.pop_word();
 
+            m_memory.pop_n_words(data);
             m_memory.push_word(x);
             break;
 
@@ -104,6 +106,72 @@ void VirtualMachine::execute_step() {
         case OpCode::StoreAbs:
             x = m_memory.pop_word();
             m_memory.set_word(x, data);
+            break;
+
+        case OpCode::IAdd:
+            sy = m_memory.pop_word();
+            sx = m_memory.pop_word();
+            m_memory.push_word(sx + sy);
+            break;
+
+        case OpCode::ISub:
+            sy = m_memory.pop_word();
+            sx = m_memory.pop_word();
+            m_memory.push_word(sx - sy);
+            break;
+
+        case OpCode::IMul:
+            sy = m_memory.pop_word();
+            sx = m_memory.pop_word();
+            m_memory.push_word(sx * sy);
+            break;
+
+        case OpCode::IDiv:
+            sy = m_memory.pop_word();
+            sx = m_memory.pop_word();
+            m_memory.push_word(sx / sy);
+            break;
+
+        case OpCode::IMod:
+            sy = m_memory.pop_word();
+            sx = m_memory.pop_word();
+            m_memory.push_word(sx % sy);
+            break;
+
+        case OpCode::ILT:
+            sy = m_memory.pop_word();
+            sx = m_memory.pop_word();
+            m_memory.push_word(sx < sy);
+            break;
+
+        case OpCode::ILE:
+            sy = m_memory.pop_word();
+            sx = m_memory.pop_word();
+            m_memory.push_word(sx <= sy);
+            break;
+
+        case OpCode::IGT:
+            sy = m_memory.pop_word();
+            sx = m_memory.pop_word();
+            m_memory.push_word(sx > sy);
+            break;
+
+        case OpCode::IGE:
+            sy = m_memory.pop_word();
+            sx = m_memory.pop_word();
+            m_memory.push_word(sx >= sy);
+            break;
+
+        case OpCode::Equ:
+            y = m_memory.pop_word();
+            x = m_memory.pop_word();
+            m_memory.push_word(x == y);
+            break;
+
+        case OpCode::Neq:
+            y = m_memory.pop_word();
+            x = m_memory.pop_word();
+            m_memory.push_word(x != y);
             break;
     }
 

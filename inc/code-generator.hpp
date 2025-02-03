@@ -40,6 +40,10 @@ public:
 
     Node &visit(ContinueStatement &stmt) override;
 
+    Node &visit(UnaryExpression &expr) override;
+
+    Node &visit(BinaryExpression &expr) override;
+
     Node &visit(Call &expr) override;
     
     Node &visit(Variable &expr) override;
@@ -63,6 +67,8 @@ private:
     std::unordered_map<FunctionDefinition *, Label> m_func_labels;
 
     std::queue<FunctionDefinition *> m_jobs;
+
+    FunctionDefinition *m_curr_job;
 
     std::stack<Label> m_break_labels;
 

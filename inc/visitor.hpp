@@ -33,6 +33,10 @@ public:
 
     virtual Node &visit(ContinueStatement &stmt);
 
+    virtual Node &visit(UnaryExpression &expr);
+
+    virtual Node &visit(BinaryExpression &expr);
+
     virtual Node &visit(Call &expr);
 
     virtual Node &visit(Variable &expr);

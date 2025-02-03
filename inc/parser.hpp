@@ -63,6 +63,14 @@ private:
 
     Expression::ptr parse_expression();
 
+    Expression::ptr parse_equality_1();
+
+    Expression::ptr parse_equality_2();
+
+    Expression::ptr parse_sum();
+
+    Expression::ptr parse_term();
+
     Expression::ptr parse_value();
 
     Expression::ptr parse_atom();

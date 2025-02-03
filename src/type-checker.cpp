@@ -61,7 +61,6 @@ Node &TypeChecker::visit(ReturnStatement &stmt) {
     stmt.value()->accept(*this);
 
     std::stringstream ss;
-    ss << "In return from `" << m_curr_function->func().lexeme() << "`";
     coerce_types(stmt.value(), m_curr_function->definition().type()->ret_type(), 
                  stmt.pos(), ss.str());
                  
@@ -95,6 +94,50 @@ Node &TypeChecker::visit(BreakStatement &stmt) {
 
 Node &TypeChecker::visit(ContinueStatement &stmt) {
     return stmt;
+}
+
+Node &TypeChecker::visit(UnaryExpression &expr) {
+    return expr;
+}
+
+Node &TypeChecker::visit(BinaryExpression &expr) {
+    expr.left()->accept(*this);
+    expr.right()->accept(*this);
+
+    std::stringstream ss;
+    ss << "On operation `" << expr.op().lexeme() << "`";
+
+    switch (expr.op().kind()) {
+        case TokenKind::Plus:
+        case TokenKind::Minus:
+        case TokenKind::Times:
+        case TokenKind::FloorDiv:
+        case TokenKind::Modulo:
+            coerce_types(expr.left(), Type::IntType(), 
+                         expr.left()->pos(), ss.str());
+            coerce_types(expr.right(), Type::IntType(), 
+                         expr.right()->pos(), ss.str());
+            expr.set_type(Type::IntType());
+            break;
+
+        case TokenKind::DoubleEquals:
+        case TokenKind::NotEquals:
+        case TokenKind::LessThan:
+        case TokenKind::LessEquals:
+        case TokenKind::GreaterThan:
+        case TokenKind::GreaterEquals:
+            coerce_types(expr.left(), Type::IntType(), 
+                         expr.left()->pos(), ss.str());
+            coerce_types(expr.right(), Type::IntType(), 
+                         expr.right()->pos(), ss.str());
+            expr.set_type(Type::BoolType());
+            break;
+
+        default:
+            throw FatalError("Unhandled operation: " + expr.op().lexeme());
+    }
+
+    return expr;
 }
 
 Node &TypeChecker::visit(Call &expr) {

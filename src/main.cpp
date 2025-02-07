@@ -9,14 +9,28 @@
 #include "renderer.hpp"
 #include "json.hpp"
 #include "instruction.hpp"
+#include "argparser.hpp"
+#include "options.hpp"
 #include <iostream>
+
 
 int const MemWidth = 64, MemHeight = 64;
 bool const UseRenderer = false;
 
-int main() {
+ArgParser setup_args() {
+    ArgParser args;
+
+    args.add_positional(&options.filename, "filename", ArgType::String);
+
+    return args;
+}
+
+int main(int argc, char *argv[]) {
     try {
-        Lexer lexer("test.pix");
+        ArgParser args = setup_args();
+        args.parse(argc, argv);
+
+        Lexer lexer(options.filename);
         std::vector<Token> tokens = lexer.lex();
 
         Parser parser(tokens);

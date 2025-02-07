@@ -1,4 +1,5 @@
 #include "renderer.hpp"
+#include "options.hpp"
 
 Renderer::Renderer()
         : m_window{nullptr}, m_renderer{nullptr},
@@ -19,7 +20,7 @@ void Renderer::init(int window_width, int window_height,
 
     SDL_Init(SDL_INIT_VIDEO);
 
-    m_window = SDL_CreateWindow("<Title>", 
+    m_window = SDL_CreateWindow(options.filename.c_str(), 
                                 SDL_WINDOWPOS_CENTERED, 
                                 SDL_WINDOWPOS_CENTERED, 
                                 m_window_width,

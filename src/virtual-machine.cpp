@@ -31,8 +31,8 @@ void VirtualMachine::execute_step() {
     uint32_t x, y, addr;
     int32_t sx = x, sy = y;
 
-    std::cout << std::left << std::setw(8) << m_ip
-              << Instruction::Disassemble(assembled) << std::endl;
+    // std::cout << std::left << std::setw(8) << m_ip
+    //           << Instruction::Disassemble(assembled) << std::endl;
 
     switch (opcode) {
         case OpCode::Nop:

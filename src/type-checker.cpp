@@ -220,6 +220,11 @@ void TypeChecker::coerce_types(Expression::ptr &target,
         return;
     }
 
+    /* Implicitly and trivially convertible */
+    if (target->type() == Type::WordType() || expected == Type::WordType()) {
+        return;
+    }
+
     std::stringstream ss;
     ss << context << ": cannot use value of type `" << *target->type() 
        << "` as `" << *expected << "`";

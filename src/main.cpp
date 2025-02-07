@@ -12,6 +12,7 @@
 #include "argparser.hpp"
 #include "options.hpp"
 #include <iostream>
+#include <iomanip>
 
 
 int const MemWidth = 64, MemHeight = 64;
@@ -21,6 +22,9 @@ ArgParser setup_args() {
     ArgParser args;
 
     args.add_positional(&options.filename, "filename", ArgType::String);
+    args.add_keyword(&options.debug.tokens, "debug-tokens", ArgType::Flag);
+    args.add_keyword(&options.debug.ast, "debug-ast", ArgType::Flag);
+    args.add_keyword(&options.debug.code, "debug-code", ArgType::Flag);
 
     return args;
 }
@@ -33,6 +37,16 @@ int main(int argc, char *argv[]) {
         Lexer lexer(options.filename);
         std::vector<Token> tokens = lexer.lex();
 
+        if (options.debug.tokens) {
+            std::cerr << "{" << std::endl;
+
+            for (Token const &token : tokens) {
+                std::cerr << std::setw(2) << "" << token << std::endl;
+            }
+
+            std::cerr << "}" << std::endl;
+        }
+
         Parser parser(tokens);
         Program::ptr ast = parser.parse();
 
@@ -42,12 +56,16 @@ int main(int argc, char *argv[]) {
         TypeChecker type_checker;
         ast->accept(type_checker);
 
-        //std::cout << *ast->to_json() << std::endl;
+        if (options.debug.ast) {
+            std::cerr << *ast->to_json() << std::endl;
+        }
 
         std::vector<CodeGenerator::entry_type> data 
                 = CodeGenerator().generate(*ast);
 
-        std::cout << data << std::endl;
+        if (options.debug.code) {
+            std::cerr << data << std::endl;
+        }
 
         Memory memory(MemWidth * MemHeight);
         Assembler(data, memory).assemble();

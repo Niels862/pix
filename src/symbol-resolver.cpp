@@ -18,6 +18,7 @@ Node &SymbolResolver::visit(Program &program) {
 
     declare_basic_type("int", Type::IntType());
     declare_basic_type("bool", Type::BoolType());
+    declare_basic_type("word", Type::WordType());
     declare_basic_type("void", Type::VoidType());
 
     /*for (Statement::ptr &stmt : program.stmts()) {
@@ -66,12 +67,6 @@ Node &SymbolResolver::visit(FunctionDeclaration &decl) {
     m_scope.leave(decl.symbols());
 
     std::vector<LocalVariableSymbol::unowned_ptr> locals = m_declared;
-
-    std::cout << "Declared {" << std::endl;
-    for (auto const &sym : locals) {
-        std::cout << *sym << std::endl;
-    }
-    std::cout << "}" << std::endl;
 
     FunctionType::ptr type = std::make_unique<FunctionType>(param_types, 
                                                             ret_type);

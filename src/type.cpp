@@ -13,6 +13,11 @@ Type::unowned_ptr Type::BoolType() {
     return &type;
 }
 
+Type::unowned_ptr Type::WordType() {
+    static NamedType type("word");
+    return &type;
+}
+
 Type::unowned_ptr Type::VoidType() {
     static NamedType type("void");
     return &type;

@@ -1,0 +1,21 @@
+function wtoi(w: word) -> int {
+    return w;
+}
+
+function itow(i: int) -> word {
+    return i;
+}
+
+function btow(b: bool) -> word {
+    return b;
+}
+
+function wtob(w: word) -> bool {
+    return w;
+}
+
+function itob(i: int) -> bool {
+    return wtob(itow(i));
+}
+
+bprint(itob(0));

@@ -24,6 +24,7 @@ enum class OpCode {
     LoadAbs,
     StoreRel,
     StoreAbs,
+    Enter,
 
     IAdd,
     ISub,

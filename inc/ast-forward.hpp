@@ -11,9 +11,11 @@ class TypeAnnotation;
 
 class Program;
 
-class VariableDeclaration;
+class ParameterDeclaration;
 
 class FunctionDeclaration;
+
+class VariableDeclaration;
 
 class NamedTypeAnnotation;
 

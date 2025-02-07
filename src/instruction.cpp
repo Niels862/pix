@@ -19,8 +19,10 @@ std::string const &to_string(OpCode instr) {
         { OpCode::LoadAbs, "load-abs" },
         { OpCode::StoreRel, "store-rel" },
         { OpCode::StoreAbs, "store-abs" },
+        { OpCode::Enter, "enter" },
         { OpCode::IAdd, "iadd" },
         { OpCode::ISub, "isub" },
+        { OpCode::IMul, "imul" },
         { OpCode::IDiv, "idiv" },
         { OpCode::IMod, "imod" },
         { OpCode::ILT, "ilt" },
@@ -34,7 +36,7 @@ std::string const &to_string(OpCode instr) {
     auto const &it = map.find(instr);
     if (it == map.end()) {
         std::stringstream ss;
-        ss << "Unmapped tokenkind: " << static_cast<int>(instr);
+        ss << "Unmapped opcode: " << static_cast<int>(instr);
         throw FatalError(ss.str());
     }
 

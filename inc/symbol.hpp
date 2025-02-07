@@ -103,9 +103,7 @@ public:
     using ptr = std::unique_ptr<FunctionSymbol>;
     using unowned_ptr = FunctionSymbol *;
 
-    void add_definition(FunctionType::ptr, ECallFunction ecall);
-
-    void add_definition(FunctionType::ptr, FunctionDeclaration *decl);
+    void add_definition(FunctionDefinition &&def);
 
     std::vector<FunctionDefinition> &definitions() { return m_definitions; }
 
@@ -117,7 +115,9 @@ class FunctionDefinition {
 public:
     FunctionDefinition(FunctionType::ptr type, ECallFunction ecall);
    
-    FunctionDefinition(FunctionType::ptr type, FunctionDeclaration *decl);
+    FunctionDefinition(FunctionType::ptr type, FunctionDeclaration *decl,
+                       std::vector<LocalVariableSymbol::unowned_ptr> params,
+                       std::vector<LocalVariableSymbol::unowned_ptr> locals);
 
     bool is_ecall() const 
             { return std::holds_alternative<ECallFunction>(m_def); }
@@ -132,6 +132,12 @@ public:
     FunctionDeclaration *decl()
             { return std::get<FunctionDeclaration *>(m_def); }
 
+    std::vector<LocalVariableSymbol::unowned_ptr> const &params()
+            { return m_params; }
+
+    std::vector<LocalVariableSymbol::unowned_ptr> const &locals() 
+            { return m_locals; }
+
     friend std::ostream &operator <<(std::ostream &stream, 
                                      FunctionDefinition const &def);
 
@@ -141,6 +147,10 @@ private:
     FunctionType::ptr m_type;
 
     std::variant<ECallFunction, FunctionDeclaration *> m_def;
+
+    std::vector<LocalVariableSymbol::unowned_ptr> m_params;
+
+    std::vector<LocalVariableSymbol::unowned_ptr> m_locals; 
 };
 
 #endif

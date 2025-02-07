@@ -26,6 +26,7 @@ void Memory::set_word(uint32_t word, std::size_t addr) {
 
 uint32_t Memory::pop_word() {
     uint32_t word = get_word(m_top);
+    set_word(0, m_top);
     m_top += 4;
     return word;
 }
@@ -36,7 +37,17 @@ void Memory::push_word(uint32_t word) {
 }
 
 void Memory::pop_n_words(std::size_t n) {
-    m_top += 4 * n;
+    for (std::size_t i = 0; i < n; i++) {
+        pop_word();
+    }
+    //m_top += 4 * n;
+}
+
+void Memory::push_n_words(std::size_t n) {
+    for (std::size_t i = 0; i < n; i++) {
+        push_word(0);
+    }
+    //m_top -= 4 * n;
 }
 
 void Memory::set_top(std::size_t top) {

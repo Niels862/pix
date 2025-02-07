@@ -18,10 +18,6 @@ int main() {
     try {
         Lexer lexer("test.pix");
         std::vector<Token> tokens = lexer.lex();
-        
-        for (Token const &token : tokens) {
-            std::cout << token << std::endl;
-        }
 
         Parser parser(tokens);
         Program::ptr ast = parser.parse();
@@ -32,7 +28,7 @@ int main() {
         TypeChecker type_checker;
         ast->accept(type_checker);
 
-        std::cout << *ast->to_json() << std::endl;
+        //std::cout << *ast->to_json() << std::endl;
 
         std::vector<CodeGenerator::entry_type> data 
                 = CodeGenerator().generate(*ast);

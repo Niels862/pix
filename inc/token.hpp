@@ -23,6 +23,7 @@ enum class TokenKind {
     Null,
 
     Arrow,
+    Equals,
     DoubleEquals,
     NotEquals,
     LessThan,

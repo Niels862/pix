@@ -48,14 +48,8 @@ void FunctionSymbol::write(std::ostream &stream) const {
     }
 }
 
-void FunctionSymbol::add_definition(FunctionType::ptr type, 
-                                    ECallFunction ecall) {
-    m_definitions.emplace_back(std::move(type), ecall);
-}
-
-void FunctionSymbol::add_definition(FunctionType::ptr type, 
-                                    FunctionDeclaration *decl) {
-    m_definitions.emplace_back(std::move(type), decl);
+void FunctionSymbol::add_definition(FunctionDefinition &&def) {
+    m_definitions.push_back(std::move(def));
 }
 
 FunctionDefinition::FunctionDefinition(FunctionType::ptr type, 
@@ -63,8 +57,11 @@ FunctionDefinition::FunctionDefinition(FunctionType::ptr type,
         : m_type{std::move(type)}, m_def{ecall} {}
 
 FunctionDefinition::FunctionDefinition(FunctionType::ptr type, 
-                                       FunctionDeclaration *decl)
-        : m_type{std::move(type)}, m_def{decl} {}
+                                       FunctionDeclaration *decl,
+                                       std::vector<LocalVariableSymbol::unowned_ptr> params,
+                                       std::vector<LocalVariableSymbol::unowned_ptr> locals)
+        : m_type{std::move(type)}, m_def{decl}, 
+          m_params{params}, m_locals{locals} {}
 
 std::ostream &operator <<(std::ostream &stream, FunctionDefinition const &def) {
     stream << *def.m_type;

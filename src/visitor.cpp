@@ -9,11 +9,15 @@ Node &AstVisitor::visit(Program &program) {
     return default_action(program);
 }
 
-Node &AstVisitor::visit(VariableDeclaration &decl) {
+Node &AstVisitor::visit(ParameterDeclaration &decl) {
     return default_action(decl);
 }
 
 Node &AstVisitor::visit(FunctionDeclaration &decl) {
+    return default_action(decl);
+}
+
+Node &AstVisitor::visit(VariableDeclaration &decl) {
     return default_action(decl);
 }
 

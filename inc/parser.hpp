@@ -39,7 +39,9 @@ private:
 
     FunctionDeclaration::ptr parse_function_declaration();
 
-    std::vector<VariableDeclaration::ptr> parse_function_parameters();
+    std::vector<ParameterDeclaration::ptr> parse_function_parameters();
+
+    ParameterDeclaration::ptr parse_parameter_declaration();
 
     VariableDeclaration::ptr parse_variable_declaration();
 

@@ -69,35 +69,37 @@ Token const &Parser::peek(std::size_t offset) const {
 }
 
 Statement::ptr Parser::parse_statement() {
-    if (matches(TokenKind::Function)) {
-        return parse_function_declaration();
-    }
+    switch (curr().kind()) {
+        case TokenKind::Function:
+            return parse_function_declaration();
 
-    if (matches(TokenKind::Return)) {
-        return parse_return_statement();
-    }
+        case TokenKind::Return:
+            return parse_return_statement();
 
-    if (matches(TokenKind::If)) {
-        return parse_if_else_statement();
-    }
+        case TokenKind::If:
+            return parse_if_else_statement();
 
-    if (matches(TokenKind::While)) {
-        return parse_while_statement();
-    }
+        case TokenKind::While:
+            return parse_while_statement();
 
-    if (matches(TokenKind::BraceLeft)) {
-        return parse_scoped_body();
-    }
+        case TokenKind::BraceLeft:
+            return parse_scoped_body();
 
-    if (matches(TokenKind::Break)) {
-        return parse_break_statement();
-    }
+        case TokenKind::Break:
+            return parse_break_statement();
 
-    if (matches(TokenKind::Continue)) {
-        return parse_continue_statement();
-    }
+        case TokenKind::Continue:
+            return parse_continue_statement();
 
-    return parse_expression_statement();
+        case TokenKind::Identifier:
+            if (peek(1).kind() == TokenKind::Colon) {
+                return parse_variable_declaration();
+            }
+            return parse_expression_statement();
+
+        default:
+            return parse_expression_statement();
+    }
 }
 
 FunctionDeclaration::ptr Parser::parse_function_declaration() {
@@ -105,7 +107,7 @@ FunctionDeclaration::ptr Parser::parse_function_declaration() {
 
     Token func = expect(TokenKind::Identifier);
 
-    std::vector<VariableDeclaration::ptr> params = parse_function_parameters();
+    std::vector<ParameterDeclaration::ptr> params = parse_function_parameters();
 
     TypeAnnotation::ptr ret_type_annotation;
     if (accept(TokenKind::Arrow)) {
@@ -122,17 +124,17 @@ FunctionDeclaration::ptr Parser::parse_function_declaration() {
                                                  std::move(stmts));
 }
 
-std::vector<VariableDeclaration::ptr> Parser::parse_function_parameters() {
+std::vector<ParameterDeclaration::ptr> Parser::parse_function_parameters() {
     expect(TokenKind::ParenLeft);
 
     if (accept(TokenKind::ParenRight)) {
         return {};
     }
 
-    std::vector<VariableDeclaration::ptr> params;
+    std::vector<ParameterDeclaration::ptr> params;
 
     while (true) {
-        VariableDeclaration::ptr param = parse_variable_declaration();
+        ParameterDeclaration::ptr param = parse_parameter_declaration();
         params.push_back(std::move(param));
 
         if (!accept(TokenKind::Comma)) {
@@ -142,13 +144,27 @@ std::vector<VariableDeclaration::ptr> Parser::parse_function_parameters() {
     }
 }
 
-VariableDeclaration::ptr Parser::parse_variable_declaration() {
+ParameterDeclaration::ptr Parser::parse_parameter_declaration() {
     Token ident = expect(TokenKind::Identifier);
 
     expect(TokenKind::Colon);
     TypeAnnotation::ptr type = parse_type_annotation();
     
-    return std::make_unique<VariableDeclaration>(ident, std::move(type));
+    return std::make_unique<ParameterDeclaration>(ident, std::move(type));
+}
+
+VariableDeclaration::ptr Parser::parse_variable_declaration() {
+    Token ident = expect(TokenKind::Identifier);
+
+    expect(TokenKind::Colon);
+    TypeAnnotation::ptr annotation = parse_type_annotation();
+
+    expect(TokenKind::Equals);
+    Expression::ptr value = parse_expression();
+    expect(TokenKind::Semicolon);
+
+    return std::make_unique<VariableDeclaration>(ident, std::move(annotation), 
+                                                 std::move(value));
 }
 
 TypeAnnotation::ptr Parser::parse_type_annotation() {

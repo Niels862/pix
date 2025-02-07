@@ -31,7 +31,8 @@ void VirtualMachine::execute_step() {
     uint32_t x, y, addr;
     int32_t sx = x, sy = y;
 
-    //std::cout << Instruction::Disassemble(assembled) << std::endl;
+    std::cout << std::left << std::setw(8) << m_ip
+              << Instruction::Disassemble(assembled) << std::endl;
 
     switch (opcode) {
         case OpCode::Nop:
@@ -106,6 +107,10 @@ void VirtualMachine::execute_step() {
         case OpCode::StoreAbs:
             x = m_memory.pop_word();
             m_memory.set_word(x, data);
+            break;
+
+        case OpCode::Enter:
+            m_memory.push_n_words(data);
             break;
 
         case OpCode::IAdd:

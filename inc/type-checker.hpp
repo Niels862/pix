@@ -13,9 +13,11 @@ public:
 
     Node &visit(Program &program) override;
 
-    Node &visit(VariableDeclaration &decl) override;
+    Node &visit(ParameterDeclaration &decl) override;
 
     Node &visit(FunctionDeclaration &decl) override;
+
+    Node &visit(VariableDeclaration &decl) override;
 
     Node &visit(ScopedBlockStatement &stmt) override;
 

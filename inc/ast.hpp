@@ -13,8 +13,9 @@
 enum class NodeKind {
     None,
     Program,
-    VariableDeclaration,
+    ParameterDeclaration,
     FunctionDeclaration,
+    VariableDeclaration,
     NamedTypeAnnotation,
     ScopedBlockStatement,
     ExpressionStatement,
@@ -126,13 +127,13 @@ private:
     SymbolTable m_symbols;
 };
 
-class VariableDeclaration : public Statement {
+class ParameterDeclaration : public Statement {
 public:
-    VariableDeclaration(Token const &ident, TypeAnnotation::ptr type);
+    ParameterDeclaration(Token const &ident, TypeAnnotation::ptr annotation);
 
     Node &accept(AstVisitor &visitor) override { return visitor.visit(*this); } 
 
-    NodeKind kind() const override { return NodeKind::VariableDeclaration; }
+    NodeKind kind() const override { return NodeKind::ParameterDeclaration; }
 
     TextPosition const &pos() const override { return m_ident.pos(); }
 
@@ -140,7 +141,7 @@ public:
 
     TypeAnnotation::ptr &annotation() { return m_annotation; }
 
-    using ptr = std::unique_ptr<VariableDeclaration>;
+    using ptr = std::unique_ptr<ParameterDeclaration>;
 
 private:
     void add_json_attributes(JSONObject &object) const;
@@ -148,12 +149,14 @@ private:
     Token m_ident;
 
     TypeAnnotation::ptr m_annotation;
+
+    Expression::ptr m_value;
 };
 
 class FunctionDeclaration : public Statement {
 public:
     FunctionDeclaration(Token const &func, 
-                        std::vector<VariableDeclaration::ptr> params, 
+                        std::vector<ParameterDeclaration::ptr> params, 
                         TypeAnnotation::ptr ret_type_annotation,
                         std::vector<Statement::ptr> body);
 
@@ -165,7 +168,7 @@ public:
 
     Token const &func() const { return m_func; }
 
-    std::vector<VariableDeclaration::ptr> &params() { return m_params; }
+    std::vector<ParameterDeclaration::ptr> &params() { return m_params; }
 
     TypeAnnotation::ptr &ret_type_annotation() { return m_ret_type_annotation; }
 
@@ -186,7 +189,7 @@ private:
 
     Token m_func;
 
-    std::vector<VariableDeclaration::ptr> m_params;
+    std::vector<ParameterDeclaration::ptr> m_params;
 
     TypeAnnotation::ptr m_ret_type_annotation;
 
@@ -195,6 +198,35 @@ private:
     SymbolTable m_symbols;
 
     FunctionDefinition::unowned_ptr m_definition;
+};
+
+class VariableDeclaration : public Statement {
+public:
+    VariableDeclaration(Token const &ident, TypeAnnotation::ptr m_type, 
+                        Expression::ptr value);
+
+    Node &accept(AstVisitor &visitor) override { return visitor.visit(*this); } 
+
+    NodeKind kind() const override { return NodeKind::VariableDeclaration; }
+
+    TextPosition const &pos() const override { return m_ident.pos(); }
+
+    Token const &ident() const { return m_ident; }
+
+    TypeAnnotation::ptr &annotation() { return m_annotation; }
+
+    Expression::ptr &value() { return m_value; }
+
+    using ptr = std::unique_ptr<VariableDeclaration>;
+
+private:
+    void add_json_attributes(JSONObject &object) const;
+
+    Token m_ident;
+
+    TypeAnnotation::ptr m_annotation;
+
+    Expression::ptr m_value;
 };
 
 class NamedTypeAnnotation : public TypeAnnotation {

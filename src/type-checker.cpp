@@ -22,7 +22,7 @@ Node &TypeChecker::visit(Program &program) {
     return program;
 }
 
-Node &TypeChecker::visit(VariableDeclaration &decl) {
+Node &TypeChecker::visit(ParameterDeclaration &decl) {
     return decl;
 }
 
@@ -36,6 +36,14 @@ Node &TypeChecker::visit(FunctionDeclaration &decl) {
 
     m_scope.leave(decl.symbols());
     m_curr_function = nullptr;
+
+    return decl;
+}
+
+Node &TypeChecker::visit(VariableDeclaration &decl) {
+    decl.value()->accept(*this);
+    coerce_types(decl.value(), decl.annotation()->type(), 
+                 decl.pos(), "In initial value of " + decl.ident());
 
     return decl;
 }

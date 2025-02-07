@@ -18,8 +18,9 @@ std::unordered_map<TokenKind, std::string> const tokenkind_to_string_map = {
     { TokenKind::True, "True" },
     { TokenKind::False, "False" },
     { TokenKind::Null, "Null" },
-    { TokenKind::Arrow, "->" },
 
+    { TokenKind::Arrow, "->" },
+    { TokenKind::Equals, "=" },
     { TokenKind::DoubleEquals, "==" },
     { TokenKind::NotEquals, "!=" },
     { TokenKind::LessThan, "<" },

@@ -23,6 +23,8 @@ class ScopedBlockStatement;
 
 class ExpressionStatement;
 
+class AssignStatement;
+
 class ReturnStatement;
 
 class IfElseStatement;

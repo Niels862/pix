@@ -32,6 +32,8 @@ public:
 
     Node &visit(ExpressionStatement &stmt) override;
 
+    Node &visit(AssignStatement &stmt) override;
+
     Node &visit(ReturnStatement &stmt) override;
 
     Node &visit(IfElseStatement &stmt) override;

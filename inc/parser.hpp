@@ -51,8 +51,6 @@ private:
 
     std::vector<Statement::ptr> parse_body();
 
-    Statement::ptr parse_expression_statement();
-
     Statement::ptr parse_return_statement();
 
     Statement::ptr parse_if_else_statement();

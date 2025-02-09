@@ -13,6 +13,7 @@ std::string const &to_string(NodeKind kind) {
         { NodeKind::NamedTypeAnnotation, "named-type-annotation" },
         { NodeKind::ScopedBlockStatement, "scoped-block-statement" },
         { NodeKind::ExpressionStatement, "expression-statement" },
+        { NodeKind::AssignStatement, "assign-statement" },
         { NodeKind::ReturnStatement, "return-statement" },
         { NodeKind::IfElseStatement, "if-else-statement" },
         { NodeKind::WhileStatement, "while-statement" },
@@ -163,6 +164,14 @@ ExpressionStatement::ExpressionStatement(Expression::ptr expr)
 
 void ExpressionStatement::add_json_attributes(JSONObject &object) const {
     object.add_key("expr", m_expr->to_json());
+}
+
+AssignStatement::AssignStatement(Expression::ptr target, Expression::ptr value)
+        : m_target{std::move(target)}, m_value{std::move(value)} {}
+
+void AssignStatement::add_json_attributes(JSONObject &object) const {
+    object.add_key("target", m_target->to_json());
+    object.add_key("value", m_value->to_json());
 }
 
 ReturnStatement::ReturnStatement(Expression::ptr value)

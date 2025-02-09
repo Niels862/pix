@@ -19,6 +19,7 @@ enum class NodeKind {
     NamedTypeAnnotation,
     ScopedBlockStatement,
     ExpressionStatement,
+    AssignStatement,
     ReturnStatement,
     IfElseStatement,
     WhileStatement,
@@ -285,6 +286,28 @@ private:
     void add_json_attributes(JSONObject &object) const;
 
     Expression::ptr m_expr;
+};
+
+class AssignStatement : public Statement {
+public:
+    AssignStatement(Expression::ptr target, Expression::ptr value);
+
+    Node &accept(AstVisitor &visitor) override { return visitor.visit(*this); } 
+
+    NodeKind kind() const override { return NodeKind::AssignStatement; }
+
+    TextPosition const &pos() const override { return m_target->pos(); }
+
+    Expression::ptr &target() { return m_target; }
+
+    Expression::ptr &value() { return m_value; }
+
+private:
+    void add_json_attributes(JSONObject &object) const;
+
+    Expression::ptr m_target;
+
+    Expression::ptr m_value;
 };
 
 class ReturnStatement : public Statement {

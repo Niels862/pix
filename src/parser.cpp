@@ -95,11 +95,25 @@ Statement::ptr Parser::parse_statement() {
             if (peek(1).kind() == TokenKind::Colon) {
                 return parse_variable_declaration();
             }
-            return parse_expression_statement();
+            break;
 
         default:
-            return parse_expression_statement();
+            break;
     }
+
+    Expression::ptr expr = parse_expression();
+
+    if (accept(TokenKind::Equals)) {
+        Expression::ptr value = parse_expression();
+        expect(TokenKind::Semicolon);
+
+        return std::make_unique<AssignStatement>(std::move(expr), 
+                                                 std::move(value));
+    }
+
+    expect(TokenKind::Semicolon);
+
+    return std::make_unique<ExpressionStatement>(std::move(expr));
 }
 
 FunctionDeclaration::ptr Parser::parse_function_declaration() {
@@ -190,14 +204,6 @@ std::vector<Statement::ptr> Parser::parse_body() {
     }
 
     return stmts;
-}
-
-Statement::ptr Parser::parse_expression_statement() {
-    Statement::ptr stmt = 
-            std::make_unique<ExpressionStatement>(parse_expression());
-    expect(TokenKind::Semicolon);
-
-    return stmt;
 }
 
 Statement::ptr Parser::parse_return_statement() {

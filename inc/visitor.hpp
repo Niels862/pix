@@ -25,6 +25,8 @@ public:
 
     virtual Node &visit(ExpressionStatement &stmt);
 
+    virtual Node &visit(AssignStatement &stmt);
+
     virtual Node &visit(ReturnStatement &stmt);
 
     virtual Node &visit(IfElseStatement &stmt);

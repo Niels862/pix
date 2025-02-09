@@ -113,6 +113,24 @@ Node &CodeGenerator::visit(ExpressionStatement &stmt) {
     return stmt;
 }
 
+Node &CodeGenerator::visit(AssignStatement &stmt) {
+    if (stmt.target()->kind() == NodeKind::Variable) {
+        Variable &var = *dynamic_cast<Variable *>(stmt.target().get());
+
+        Symbol::unowned_ptr symbol = m_scope.lookup(var.ident());
+
+        LocalVariableSymbol::unowned_ptr var_symbol     
+                = dynamic_cast<LocalVariableSymbol *>(symbol);
+
+        stmt.value()->accept(*this);
+        emit(OpCode::StoreRel, var_symbol->offset());
+    } else {
+        throw std::runtime_error("not supported");
+    }
+
+    return stmt;
+}
+
 Node &CodeGenerator::visit(ReturnStatement &stmt) {
     stmt.value()->accept(*this);
     emit(OpCode::Ret, m_curr_job->type()->param_types().size());

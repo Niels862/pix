@@ -1,0 +1,7 @@
+function f() -> int {
+    x: int = 5;
+    x = 42;
+    return x;
+}
+
+iprint(f());

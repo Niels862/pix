@@ -33,6 +33,10 @@ Node &AstVisitor::visit(ExpressionStatement &stmt) {
     return default_action(stmt);
 }
 
+Node &AstVisitor::visit(AssignStatement &stmt) {
+    return default_action(stmt);
+}
+
 Node &AstVisitor::visit(ReturnStatement &stmt) {
     return default_action(stmt);
 }

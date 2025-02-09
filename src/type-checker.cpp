@@ -65,6 +65,12 @@ Node &TypeChecker::visit(ExpressionStatement &stmt) {
     return stmt;
 }
 
+Node &TypeChecker::visit(AssignStatement &stmt) {
+    stmt.target()->accept(*this);
+    stmt.value()->accept(*this);
+    return stmt;
+}
+
 Node &TypeChecker::visit(ReturnStatement &stmt) {
     stmt.value()->accept(*this);
 

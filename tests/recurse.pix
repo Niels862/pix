@@ -97,7 +97,7 @@ function test_mccarthy(i: int) {
         return null();
     }
 
-    iprint(mccarthy(i));
+    print(mccarthy(i));
     test_mccarthy(i + 1);
 }
 
@@ -106,20 +106,20 @@ function test_prime(i: int, end: int) {
         return null();
     }
 
-    iprint(i);
-    iprint(sqrt(i));
+    print(i);
+    print(sqrt(i));
     test_prime(i + 1, end);
 }
 
-iprint(fib(15));
-#iprint(sum(200));
-#iprint(fact(24));
-#iprint(sqrt(1));
-#iprint(sqrt(500));
-#iprint(sqrt(600));
-#bprint(is_prime(2));
-#bprint(is_prime(449));
-#iprint(reverse_digits(1234));
-#iprint(reverse_digits(4556));
+print(fib(15));
+#print(sum(200));
+#print(fact(24));
+#print(sqrt(1));
+#print(sqrt(500));
+#print(sqrt(600));
+#print(is_prime(2));
+print(is_prime(449));
+#print(reverse_digits(1234));
+#print(reverse_digits(4556));
 
 #test_prime(0, 256);

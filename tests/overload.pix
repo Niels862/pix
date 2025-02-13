@@ -1,0 +1,9 @@
+function f() -> int {
+    return 42;
+}
+
+function f(x: int) -> int {
+    return x;
+}
+
+print(f(f()));

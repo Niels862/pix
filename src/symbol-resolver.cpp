@@ -11,9 +11,9 @@ SymbolResolver::SymbolResolver()
 Node &SymbolResolver::visit(Program &program) {
     m_scope.enter(program.symbols());
 
-    declare_basic_function("iprint", Type::IntType(), Type::VoidType(), 
+    declare_basic_function("print", Type::IntType(), Type::VoidType(), 
                            ECallFunction::PrintInt);
-    declare_basic_function("bprint", Type::BoolType(), Type::VoidType(),
+    declare_basic_function("print", Type::BoolType(), Type::VoidType(),
                            ECallFunction::PrintBool);
 
     declare_basic_type("int", Type::IntType());
@@ -70,13 +70,9 @@ Node &SymbolResolver::visit(FunctionDeclaration &decl) {
 
     FunctionType::ptr type = std::make_unique<FunctionType>(param_types, 
                                                             ret_type);
-    FunctionSymbol::ptr func = std::make_unique<FunctionSymbol>();
+
     FunctionDefinition def(std::move(type), &decl, params, locals);
-
-    func->add_definition(std::move(def));
-    decl.set_definition(func->definitions().back());
-
-    m_scope.declare(decl.func(), std::move(func));
+    decl.set_definition(m_scope.declare_function(decl.func(), std::move(def)));
 
     return decl;
 }
@@ -143,9 +139,6 @@ void SymbolResolver::declare_basic_function(std::string const &name,
     std::vector<Type::unowned_ptr> params = { param_type };
     FunctionType::ptr type = std::make_unique<FunctionType>(params, ret_type);
 
-    FunctionSymbol::ptr func = std::make_unique<FunctionSymbol>();
     FunctionDefinition def(std::move(type), ecall);
-
-    func->add_definition(std::move(def));
-    m_scope.declare(name, std::move(func));
+    m_scope.declare_function(name, std::move(def));
 }

@@ -157,42 +157,73 @@ Node &TypeChecker::visit(BinaryExpression &expr) {
 }
 
 Node &TypeChecker::visit(Call &expr) {
+    static std::vector<FunctionDefinition *> defs;
+    
     for (Expression::ptr &expr : expr.args()) {
         expr->accept(*this);
     }
-
-    std::string const &name = expr.func().lexeme();
     
-    Symbol::unowned_ptr symbol = m_scope.lookup(expr.func());
-    FunctionSymbol::unowned_ptr func_symbol = 
-            dynamic_cast<FunctionSymbol *>(symbol);
+    defs.clear();
+    m_scope.lookup_definitions(expr.func(), defs);
 
-    if (!func_symbol) {
-        throw ParserError(expr.pos(), name + " is not a function");
-    }
-
-    std::vector<FunctionDefinition> &defs = func_symbol->definitions();
-    if (defs.size() != 1) {
-        throw ParserError(expr.pos(), "overloads not implemented");
-    }
-
-    FunctionDefinition &def = defs.front();
-    std::vector<Type::unowned_ptr> const &param_types = def.type()->param_types();
-
-    if (expr.args().size() != param_types.size()) {
+    if (defs.empty()) {
         std::stringstream ss;
-        ss << expr.func().lexeme() << " got " << expr.args().size()
-           << " arguments, but expected " << param_types.size();
+        ss << "`" << expr.func().lexeme()
+           << "` is not declared as a function in this scope";
+        throw ParserError(expr.pos(), ss.str());
+    }
+
+    for (auto &def : defs) {
+        auto &param_types = def->type()->param_types();
+
+        if (param_types.size() != expr.args().size()) {
+            def = nullptr;
+            continue;
+        }
+
+        for (std::size_t i = 0; i < param_types.size(); i++) {
+            if (param_types[i] != expr.args()[i]->type()) {
+                def = nullptr;
+            }
+        }
+    }
+
+    FunctionDefinition *def = nullptr;
+    for (auto const &candidate : defs) {
+        if (!candidate) {
+            continue;
+        }
+        if (def) {
+            throw ParserError(expr.pos(), "Multiple definitions, todo");
+        } else {
+            def = candidate;
+        }
+    }
+
+    if (!def) {
+        std::stringstream ss;
+        ss << "No definition of `" << expr.func().lexeme()
+           << "` matched the argument types: (";
+        bool first = true;
+        for (Expression::ptr &arg : expr.args()) {
+            if (first) {
+                first = false;
+            } else {
+                ss << ", ";
+            }
+            ss << *arg->type();
+        }
+        ss << ")";
         throw ParserError(expr.pos(), ss.str());
     }
 
     for (std::size_t i = 0; i < expr.args().size(); i++) {
-        coerce_types(expr.args()[i], param_types[i], 
+        coerce_types(expr.args()[i], def->type()->param_types()[i], 
                      expr.pos(), "In call to " + expr.func().lexeme());
     }
 
-    expr.set_called(def);
-    expr.set_type(def.type()->ret_type());
+    expr.set_called(*def);
+    expr.set_type(def->type()->ret_type());
     
     return expr;
 }

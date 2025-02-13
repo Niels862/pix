@@ -16,4 +16,4 @@ function fastfib(n: int) -> int {
     return x1;
 }
 
-iprint(fastfib(38));
+print(fastfib(38));

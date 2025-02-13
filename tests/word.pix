@@ -18,4 +18,4 @@ function itob(i: int) -> bool {
     return wtob(itow(i));
 }
 
-bprint(itob(0));
+print(itob(0));

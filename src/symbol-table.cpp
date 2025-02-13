@@ -72,6 +72,26 @@ Symbol::unowned_ptr SymbolScope::lookup(Token const &ident) const {
     throw ParserError(ident.pos(), ss.str());
 }
 
+void SymbolScope::lookup_definitions(Token const &ident, 
+                                     std::vector<FunctionDefinition *> &defs) {
+    for (auto it = m_tables.rbegin(); it != m_tables.rend(); it++) {
+        SymbolTable const &table = **it;
+        Symbol *symbol = table.lookup(ident);
+
+        if (!symbol) {
+            continue;
+        }
+        
+        if (auto *func_symbol = dynamic_cast<FunctionSymbol *>(symbol)) {
+            for (auto &def : func_symbol->definitions()) {
+                defs.push_back(def.get());
+            }
+        } else {
+            return;
+        }
+    }
+}
+
 void SymbolScope::declare(std::string const &ident, Symbol::ptr symbol) {
     std::string const lexeme = ident;
     Token const token(TextPosition(), TokenKind::Synthetic, std::move(lexeme));
@@ -100,3 +120,42 @@ void SymbolScope::declare(Token const &ident, Symbol::ptr symbol) {
 
     current().insert(ident.lexeme(), std::move(symbol));
 }
+
+FunctionDefinition &SymbolScope::declare_function(std::string const &ident, 
+                                                  FunctionDefinition &&def) {
+    std::string const lexeme = ident;
+    Token const token(TextPosition(), TokenKind::Synthetic, std::move(lexeme));
+
+    try {
+        return declare_function(token, std::move(def));
+    } catch (ParserError const &e) {
+        std::stringstream ss;
+        ss << "Fatal: " << e.what();
+        throw FatalError(ss.str());
+    }
+}
+
+FunctionDefinition &SymbolScope::declare_function(Token const &ident, 
+                                                  FunctionDefinition &&def) {
+    Symbol *symbol = current().lookup(ident);
+
+    if (auto func_symbol = dynamic_cast<FunctionSymbol *>(symbol)) {
+        func_symbol->add_definition(std::move(def));
+        FunctionDefinition &def_inplace = *func_symbol->definitions().back();
+
+        return def_inplace;
+    } else if (symbol) {
+        std::stringstream ss;
+        ss << "`" << ident.lexeme() << "` was already declared in this scope";
+        throw ParserError(ident.pos(), ss.str());
+    } else {
+        FunctionSymbol::ptr func_symbol = std::make_unique<FunctionSymbol>();
+        func_symbol->add_definition(std::move(def));
+        FunctionDefinition &def_inplace = *func_symbol->definitions().back();
+
+        declare(ident, std::move(func_symbol));
+
+        return def_inplace;
+    }
+}
+

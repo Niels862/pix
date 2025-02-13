@@ -38,18 +38,18 @@ void FunctionSymbol::write(std::ostream &stream) const {
     stream << "Function: ";
 
     bool first = true;
-    for (FunctionDefinition const &def : m_definitions) {
+    for (auto &def : m_definitions) {
         if (first) {
             first = false;
         } else {
             stream << " | ";
         }
-        stream << def;
+        stream << *def;
     }
 }
 
 void FunctionSymbol::add_definition(FunctionDefinition &&def) {
-    m_definitions.push_back(std::move(def));
+    m_definitions.push_back(std::make_unique<FunctionDefinition>(std::move(def)));
 }
 
 FunctionDefinition::FunctionDefinition(FunctionType::ptr type, 

@@ -105,10 +105,11 @@ public:
 
     void add_definition(FunctionDefinition &&def);
 
-    std::vector<FunctionDefinition> &definitions() { return m_definitions; }
+    std::vector<std::unique_ptr<FunctionDefinition>> &definitions() 
+            { return m_definitions; }
 
 private:
-    std::vector<FunctionDefinition> m_definitions;
+    std::vector<std::unique_ptr<FunctionDefinition>> m_definitions;
 };
 
 class FunctionDefinition {
@@ -140,6 +141,8 @@ public:
 
     friend std::ostream &operator <<(std::ostream &stream, 
                                      FunctionDefinition const &def);
+
+    using ptr = std::unique_ptr<FunctionDefinition>;
 
     using unowned_ptr = FunctionDefinition *;
 

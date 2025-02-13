@@ -39,9 +39,18 @@ public:
 
     Symbol::unowned_ptr lookup(Token const &ident) const;
 
+    void lookup_definitions(Token const &ident, 
+                            std::vector<FunctionDefinition *> &defs);
+
     void declare(std::string const &ident, Symbol::ptr symbol);
 
     void declare(Token const &ident, Symbol::ptr symbol);
+
+    FunctionDefinition &declare_function(std::string const &ident, 
+                                         FunctionDefinition &&def);
+
+    FunctionDefinition &declare_function(Token const &ident, 
+                                         FunctionDefinition &&def);
 
     SymbolTable &current() { return *m_tables.back(); }
 

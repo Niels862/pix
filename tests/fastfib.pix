@@ -1,0 +1,19 @@
+function fastfib(n: int) -> int {
+    function f() {}
+
+    x1: int = 0;
+    x2: int = 1;
+    i: int = 0;
+
+    while i < n {
+        x: int = x1 + x2;
+        x1 = x2;
+        x2 = x;
+
+        i = i + 1;
+    }
+
+    return x1;
+}
+
+iprint(fastfib(38));

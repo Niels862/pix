@@ -20,6 +20,8 @@ public:
 
     std::vector<entry_type> generate(Program &ast);
 
+    void emit_function(FunctionDeclaration &decl);
+
     Node &default_action(Node &node) override;
 
     Node &visit(Program &program) override;

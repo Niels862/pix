@@ -32,7 +32,7 @@ std::vector<CodeGenerator::entry_type> CodeGenerator::generate(Program &ast) {
         emit(m_func_labels.find(&def)->second);
         emit(OpCode::Enter, def.locals().size());
 
-        def.decl()->accept(*this);
+        emit_function(*def.decl());
 
         emit(OpCode::Push);
         emit(OpCode::Ret, m_curr_job->type()->param_types().size());
@@ -45,21 +45,7 @@ std::vector<CodeGenerator::entry_type> CodeGenerator::generate(Program &ast) {
     return m_data;
 }
 
-Node &CodeGenerator::default_action(Node &node) {
-    std::stringstream ss;
-    ss << "CodeGenerator(): unimplemented action: " << node.kind();
-    throw FatalError(ss.str());
-}
-
-Node &CodeGenerator::visit(Program &program) {
-    for (Statement::ptr &stmt : program.stmts()) {
-        stmt->accept(*this);
-    }
-
-    return program;
-}
-
-Node &CodeGenerator::visit(FunctionDeclaration &decl) {
+void CodeGenerator::emit_function(FunctionDeclaration &decl) {
     m_scope.enter(decl.symbols());
 
     int offset = 4 * (decl.params().size() + 1);
@@ -79,7 +65,23 @@ Node &CodeGenerator::visit(FunctionDeclaration &decl) {
     }
 
     m_scope.leave(decl.symbols());
+}
 
+Node &CodeGenerator::default_action(Node &node) {
+    std::stringstream ss;
+    ss << "CodeGenerator(): unimplemented action: " << node.kind();
+    throw FatalError(ss.str());
+}
+
+Node &CodeGenerator::visit(Program &program) {
+    for (Statement::ptr &stmt : program.stmts()) {
+        stmt->accept(*this);
+    }
+
+    return program;
+}
+
+Node &CodeGenerator::visit(FunctionDeclaration &decl) {
     return decl;
 }
 

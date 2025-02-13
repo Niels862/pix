@@ -27,6 +27,8 @@ Node &TypeChecker::visit(ParameterDeclaration &decl) {
 }
 
 Node &TypeChecker::visit(FunctionDeclaration &decl) {
+    FunctionDeclaration::unowned_ptr prev_func = m_curr_function;
+
     m_curr_function = &decl;
     m_scope.enter(decl.symbols());
 
@@ -35,7 +37,7 @@ Node &TypeChecker::visit(FunctionDeclaration &decl) {
     }
 
     m_scope.leave(decl.symbols());
-    m_curr_function = nullptr;
+    m_curr_function = prev_func;
 
     return decl;
 }

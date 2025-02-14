@@ -1,9 +1,16 @@
-function f() -> int {
-    return 42;
+function f() -> bool {
+    return True;
+}
+
+function f(x: bool) -> int {
+    if (x) {
+        return 42;
+    }
+    return 14;
 }
 
 function f(x: int) -> int {
-    return x;
+    return x + 1;
 }
 
-print(f(f()));
+print(f(f(f())));

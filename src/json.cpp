@@ -1,5 +1,6 @@
 #include "json.hpp"
 #include "error.hpp"
+#include "options.hpp"
 #include <iomanip>
 
 JSON::JSON()
@@ -66,13 +67,13 @@ void JSONObject::write(std::ostream &stream, std::size_t depth) const {
         } else {
             stream << "\n";
         }
-        stream << std::setw(PrettyPrintSpacing * (depth + 1)) << "" 
+        stream << std::setw(options.json.spacing * (depth + 1)) << "" 
                << "\"" << kv.first << "\": ";
         kv.second->write(stream, depth + 1);
         first = false;
     }
 
-    stream << "\n" << std::setw(PrettyPrintSpacing * depth) << "" << "}";
+    stream << "\n" << std::setw(options.json.spacing * depth) << "" << "}";
 }
 
 JSONList::JSONList()
@@ -101,10 +102,10 @@ void JSONList::write(std::ostream &stream, std::size_t depth) const {
         } else {
             stream << "\n";
         }
-        stream << std::setw(PrettyPrintSpacing * (depth + 1)) << "";
+        stream << std::setw(options.json.spacing * (depth + 1)) << "";
         value->write(stream, depth + 1);
         first = false;
     }
     
-    stream << "\n" << std::setw(PrettyPrintSpacing * depth) << "" << "]";
+    stream << "\n" << std::setw(options.json.spacing * depth) << "" << "]";
 }

@@ -10,8 +10,7 @@ public:
 
     ~Renderer();
 
-    void init(int window_width, int window_height, 
-              int mem_width, int mem_height);
+    void init();
 
     int process_events();
 
@@ -25,10 +24,6 @@ private:
     SDL_Texture *m_texture;
 
     std::unique_ptr<Uint32[]> m_pixels;
-
-    int m_window_width, m_window_height;
-
-    int m_mem_width, m_mem_height;
 
     bool m_initialized;
 };

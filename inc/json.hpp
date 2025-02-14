@@ -7,8 +7,6 @@
 #include <memory>
 #include <iostream>
 
-constexpr int PrettyPrintSpacing = 2;
-
 class JSON {
 public:
     JSON();

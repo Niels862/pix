@@ -14,17 +14,37 @@
 #include <iostream>
 #include <iomanip>
 
-
-int const MemWidth = 64, MemHeight = 64;
-bool const UseRenderer = false;
-
 ArgParser setup_args() {
     ArgParser args;
 
-    args.add_positional(&options.filename, "filename", ArgType::String);
-    args.add_keyword(&options.debug.tokens, "debug-tokens", ArgType::Flag);
-    args.add_keyword(&options.debug.ast, "debug-ast", ArgType::Flag);
-    args.add_keyword(&options.debug.code, "debug-code", ArgType::Flag);
+    args.add_positional(&options.filename, "filename",
+                        ArgType::String);
+    args.add_keyword(&options.no_exec, "no-exec",
+                     ArgType::Flag);
+
+    args.add_keyword(&options.debug.tokens, "debug-tokens",
+                     ArgType::Flag);
+    args.add_keyword(&options.debug.ast, "debug-ast",
+                     ArgType::Flag);
+    args.add_keyword(&options.debug.code, "debug-code",
+                     ArgType::Flag);
+
+    args.add_keyword(&options.vis.visualize, "visualize", 
+                     ArgType::Flag);
+    args.add_keyword(&options.vis.title, "vis-title", 
+                     ArgType::String, ".");
+    args.add_keyword(&options.vis.width, "vis-width", 
+                     ArgType::Integer, "512");
+    args.add_keyword(&options.vis.height, "vis-height", 
+                     ArgType::Integer, "512");
+
+    args.add_keyword(&options.mem.width, "mem-width", 
+                     ArgType::Integer, "128");
+    args.add_keyword(&options.mem.height, "mem-height",
+                     ArgType::Integer, "128");
+
+    args.add_keyword(&options.json.spacing, "json-spacing",
+                     ArgType::Integer, "2");
 
     return args;
 }
@@ -67,13 +87,17 @@ int main(int argc, char *argv[]) {
             std::cerr << data << std::endl;
         }
 
-        Memory memory(MemWidth * MemHeight);
+        if (options.no_exec) {
+            return 0;
+        }
+
+        Memory memory(options.mem.width * options.mem.height);
         Assembler(data, memory).assemble();
         VirtualMachine vm(memory);
 
         Renderer renderer;
-        if (UseRenderer) {
-            renderer.init(256, 256, MemWidth, MemHeight);
+        if (options.vis.visualize) {
+            renderer.init();
         }
 
         while (!vm.terminated()) {
